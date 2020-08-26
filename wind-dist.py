@@ -41,7 +41,7 @@ def main():
   
   exp = "cPanCan_011deg_ERA5_80lvl_rerun"
       
-  fodler = "/home/cruman/Documents/Scripts/calc-wind-10km"
+  folder = "/home/cruman/Documents/Scripts/calc-wind-10km"
 #  Cedar
 #  main_folder = "/home/cruman/projects/rrg-sushama-ab/teufel/{0}".format(exp)
 #  Beluga
