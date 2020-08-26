@@ -95,7 +95,8 @@ def main():
           #print([lev for lev in utest.sorted_levels])
           levels = [lev for lev in utest.sorted_levels]
           levels = levels[:-1]
-          dates = [str(d) for d in utest.sorted_dates]
+          #dates = [str(d) for d in utest.sorted_dates]
+          dates = np.array(r.variables["UU"].sorted_dates)
 
           #t2m = r.get_first_record_for_name("TT", label="PAN_ERAI_DEF")        
                   
