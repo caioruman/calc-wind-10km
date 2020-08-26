@@ -62,8 +62,8 @@ def main():
         print("Month already calculated. skipping.")
         continue
 
-      arq_dm_month = glob("{0}/Samples/{1}_{2}{3:02d}/dm*".format(main_folder, exp, year, month)).sorted()
-      arq_pm_month = glob("{0}/Samples/{1}_{2}{3:02d}/pm*".format(main_folder, exp, year, month)).sorted()
+      arq_dm_month = glob("{0}/Samples/{1}_{2}{3:02d}/dm*".format(main_folder, exp, year, month)).sort()
+      arq_pm_month = glob("{0}/Samples/{1}_{2}{3:02d}/pm*".format(main_folder, exp, year, month)).sort()
 
       print(arq_dm_month)
       sys.exit()
