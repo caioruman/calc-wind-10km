@@ -48,27 +48,25 @@ def main():
   main_folder = "/home/cruman/projects/rrg-sushama-ab/cruman/storage_model/Output/{0}".format(exp)
 
   # to be put in a loop later. 
-  for year in range(datai, dataf+1):
-    os.system('mkdir -p {1}/CSV/{0}'.format(year, folder))
+  for year in range(datai, dataf+1):    
 
     for month in range(1,13):  
-
+      
       # Sample point for testing. Try Ile St Madeleine later: 47.391348; -61.850658
       #sp_lat = 58.107914
       #sp_lon = -68.421492
       #     
       name = "71925__Cambridge_Bay__NT_YCB"
-      if os.path.exists("{0}/CSV/{4}/{1}_{2}{3:02d}_windpress_neg.csv".format(folder, name, year, month, year)):
+      if os.path.exists("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}01_windpress_neg.csv".format(folder, name, year, month)):
         print("Month already calculated. skipping.")
         continue
 
       arq_dm_month = np.sort(glob("{0}/Samples/{1}_{2}{3:02d}/dm*".format(main_folder, exp, year, month)))
-      arq_pm_month = np.sort(glob("{0}/Samples/{1}_{2}{3:02d}/pm*".format(main_folder, exp, year, month)))
+      arq_pm_month = np.sort(glob("{0}/Samples/{1}_{2}{3:02d}/pm*".format(main_folder, exp, year, month)))      
 
-      print(arq_dm_month)
-      sys.exit()
-
+      i = 0
       for arq_dm, arq_pm in zip(arq_dm_month, arq_pm_month):
+        i += 1
       # Reading SHF. File shape: (time, soil type, lat, lon)
         with RPN(arq_pm) as r:
           print("Opening file {0}".format(arq_pm))
@@ -90,19 +88,21 @@ def main():
           vv = np.squeeze(r.variables["VV"][:])                        
 
           tt = np.squeeze(r.variables["TT"][:])
-          tt_10 = tt[:,-1,:,:]  
+          t2m = tt[:,-1,:,:]  
                   
-          #utest = r.variables["UU"]
+          utest = r.variables["UU"]
           #ttest = r.variables["TT"]
           #print([lev for lev in utest.sorted_levels])
-          #print([lev for lev in ttest.sorted_levels])
+          levels = [lev for lev in utest.sorted_levels]
+          levels = levels[:-1]
+          dates = [str(d) for d in utest.sorted_dates]
 
           #t2m = r.get_first_record_for_name("TT", label="PAN_ERAI_DEF")        
                   
         uv = np.sqrt(np.power(uu, 2) + np.power(vv, 2))
         uv_10 = uv[:,-1,:,:]
-        
-        sys.exit()
+        uv = uv[:,:-1,:,:]
+        tt = tt[:,:-1,:,:]
               
         lats = []
         lons = []
@@ -118,42 +118,42 @@ def main():
 
         # looping throught all the stations
         for lat, lon, name in zip(lats, lons, stnames):
-
+          os.system('mkdir -p {1}/CSV/{3}/{0}{2:02d}'.format(year, folder, month, name))
           # Extract the info from the grid 
           i, j = geo_idx([lat, lon], np.array([lats2d, lons2d]))
 
           # Separating the negative and positive values, to apply to the wind
           neg_shf = np.less_equal(shf[:, i, j], 0)
 
-          neg_wind = uv[neg_shf, i, j]
-          pos_wind = uv[~neg_shf, i, j]
+          neg_wind = uv_10[neg_shf, i, j]
+          pos_wind = uv_10[~neg_shf, i, j]
 
           neg_t2m = t2m[neg_shf, i, j]
           pos_t2m = t2m[~neg_shf, i, j]
 
-          neg_stemp = surf_temp[neg_shf, i, j]
-          pos_stemp = surf_temp[~neg_shf, i, j]
+          neg_stemp = tskin[neg_shf, i, j]
+          pos_stemp = tskin[~neg_shf, i, j]
 
-          neg_wind_press = uv_pressure[neg_shf, 10:, i, j]
-          pos_wind_press = uv_pressure[~neg_shf, 10:, i, j]
+          neg_wind_model = uv[neg_shf, :, i, j]
+          pos_wind_model = uv[~neg_shf, :, i, j]
 
-          neg_tt_press = tt_press[neg_shf, 10:, i, j]
-          pos_tt_press = tt_press[~neg_shf, 10:, i, j]
+          neg_tt_model = tt[neg_shf, :, i, j]
+          pos_tt_model = tt[~neg_shf, :, i, j]
 
-          neg_dates_d = dates_d[neg_shf]
-          pos_dates_d = dates_d[~neg_shf]
+          neg_dates = dates[neg_shf]
+          pos_dates = dates[~neg_shf]
 
-          df1 = pd.DataFrame(data=neg_wind_press, columns=levels[10:])
-          df2 = pd.DataFrame(data=pos_wind_press, columns=levels[10:])
+          df1 = pd.DataFrame(data=neg_wind_model, columns=levels)
+          df2 = pd.DataFrame(data=pos_wind_model, columns=levels)
 
-          df1 = df1.assign(Dates=neg_dates_d)
-          df2 = df2.assign(Dates=pos_dates_d)
+          df1 = df1.assign(Dates=neg_dates)
+          df2 = df2.assign(Dates=pos_dates)
 
-          df1.to_csv("{0}/CSV_RCP/{4}/{1}_{2}{3:02d}_windpress_neg.csv".format(folder, name, year, month, year))
-          df2.to_csv("{0}/CSV_RCP/{4}/{1}_{2}{3:02d}_windpress_pos.csv".format(folder, name, year, month, year))
+          df1.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_windpress_neg.csv".format(folder, name, year, month, i))
+          df2.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_windpress_pos.csv".format(folder, name, year, month, i))
 
-          df1 = pd.DataFrame(data=neg_tt_press, columns=levels[10:])
-          df2 = pd.DataFrame(data=pos_tt_press, columns=levels[10:])
+          df1 = pd.DataFrame(data=neg_tt_model, columns=levels)
+          df2 = pd.DataFrame(data=pos_tt_model, columns=levels)
 
           df1 = df1.assign(SurfTemp=neg_stemp)
           df1 = df1.assign(T2M=neg_t2m)
@@ -163,12 +163,12 @@ def main():
           df2 = df2.assign(T2M=pos_t2m)
           df2 = df2.assign(UV=pos_wind)
 
-          df1 = df1.assign(Dates=neg_dates_d)
-          df2 = df2.assign(Dates=pos_dates_d)
+          df1 = df1.assign(Dates=neg_dates)
+          df2 = df2.assign(Dates=pos_dates)
 
-          df1.to_csv("{0}/CSV_RCP/{4}/{1}_{2}{3:02d}_neg.csv".format(folder, name, year, month, year))
-          df2.to_csv("{0}/CSV_RCP/{4}/{1}_{2}{3:02d}_pos.csv".format(folder, name, year, month, year))
-  #      sys.exit()
+          df1.to_csv("{0}/CSV_RCP/{1}/{2}{3:02d}/{1}_{2}{3:02d}_neg.csv".format(folder, name, year, month, i))
+          df2.to_csv("{0}/CSV_RCP/{1}/{2}{3:02d}/{1}_{2}{3:02d}_pos.csv".format(folder, name, year, month, i))
+        sys.exit()
 
 def geo_idx(dd, dd_array, type="lat"):
   '''
