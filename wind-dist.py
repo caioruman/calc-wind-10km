@@ -50,16 +50,7 @@ def main():
   # to be put in a loop later. 
   for year in range(datai, dataf+1):    
 
-    for month in range(1,13):  
-      
-      # Sample point for testing. Try Ile St Madeleine later: 47.391348; -61.850658
-      #sp_lat = 58.107914
-      #sp_lon = -68.421492
-      #     
-      name = "71925__Cambridge_Bay__NT_YCB"
-      if os.path.exists("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}01_windpress_neg.csv".format(folder, name, year, month)):
-        print("Month already calculated. skipping.")
-        continue
+    for month in range(1,13):        
 
       arq_dm_month = np.sort(glob("{0}/Samples/{1}_{2}{3:02d}/dm*".format(main_folder, exp, year, month)))
       arq_pm_month = np.sort(glob("{0}/Samples/{1}_{2}{3:02d}/pm*".format(main_folder, exp, year, month)))      
@@ -67,6 +58,12 @@ def main():
       m = 0
       for arq_dm, arq_pm in zip(arq_dm_month, arq_pm_month):
         m += 1
+
+        name = "71925__Cambridge_Bay__NT_YCB"
+        if os.path.exists("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_windpress_neg.csv".format(folder, name, year, month, m)):
+          print("{0}-{1}-{2} already calculated. skipping.".format(year, month, m))
+          continue
+
       # Reading SHF. File shape: (time, soil type, lat, lon)
         with RPN(arq_pm) as r:
           print("Opening file {0}".format(arq_pm))
@@ -169,7 +166,7 @@ def main():
 
           df1.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_neg.csv".format(folder, name, year, month, m))
           df2.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_pos.csv".format(folder, name, year, month, m))
-        sys.exit()
+        
 
 def geo_idx(dd, dd_array, type="lat"):
   '''
