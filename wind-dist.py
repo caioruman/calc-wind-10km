@@ -72,7 +72,8 @@ def main():
         # I want the grid average, getting the field number 5
         shf = shf[:,4,:,:]
                 
-        surf_temp = np.squeeze(r.variables["J8"][:]) - 273.15
+        tskin = np.squeeze(r.variables["TSKN"][:]) - 273.15
+        tskin = tskin[:,4,:,:]
         
         if 'lons2d' not in locals():
           lons2d, lats2d = r.get_longitudes_and_latitudes_for_the_last_read_rec()  
