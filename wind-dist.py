@@ -85,16 +85,16 @@ def main():
         uu = np.squeeze(r.variables["UU"][:])
         vv = np.squeeze(r.variables["VV"][:])
         print(uu.shape)
-        print(uu[0, 150, 150])
-        print(uu[-1, 150, 150])
+        print(uu[0])
+        print(uu[-1])
 
         uu_10 = uu[0]
         vv_10 = vv[0]
 
         tt = np.squeeze(r.variables["TT"][:])  
         print(tt.shape)
-        print(tt[0, 150, 150])
-        print(tt[-1, 150, 150])
+        print(tt[0])
+        print(tt[-1])
         sys.exit()
         #t2m = r.get_first_record_for_name("TT", label="PAN_ERAI_DEF")        
                 
