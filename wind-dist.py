@@ -85,8 +85,7 @@ def main():
         uu = np.squeeze(r.variables["UU"][:])
         vv = np.squeeze(r.variables["VV"][:])
         print(uu.shape)
-        print(uu[0,0, 150, 150])
-        print(uu[0,-1, 150, 150])
+        
 
         uu_10 = uu[0]
         vv_10 = vv[0]
@@ -95,11 +94,14 @@ def main():
         print(tt.shape)
         print(tt[0,0, 150, 150])
         print(tt[0,-1, 150, 150])
-        sys.exit()
+        
         #t2m = r.get_first_record_for_name("TT", label="PAN_ERAI_DEF")        
                 
       uv = np.sqrt(np.power(uu, 2) + np.power(vv, 2))
       uv_10 = np.sqrt(np.power(uu_10, 2) + np.power(vv_10, 2))
+      print(uv[0,0, 150, 150])
+      print(uv[0,-1, 150, 150])
+      sys.exit()
       print(uu.shape, vv.shape, t2m.shape)  
 
       # Reading the wind on preassure levels
