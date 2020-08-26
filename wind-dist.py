@@ -40,8 +40,8 @@ dataf = args.anof
 def main():
   
   exp = "cPanCan_011deg_ERA5_80lvl_rerun"
-    
-  folder = "/home/mobaxterm/MyDocuments/McGill/Scripts/calc-wind-10km"
+      
+  fodler = "/home/cruman/Documents/Scripts/calc-wind-10km"
 #  Cedar
 #  main_folder = "/home/cruman/projects/rrg-sushama-ab/teufel/{0}".format(exp)
 #  Beluga
@@ -65,37 +65,40 @@ def main():
       arq_dm = glob("{0}/Samples/{1}_{2}{3:02d}/dm*".format(main_folder, exp, year, month))[0]
       arq_pm = glob("{0}/Samples/{1}_{2}{3:02d}/pm*".format(main_folder, exp, year, month))[0]  
 
-      # Reading SHF
+      # Reading SHF. File shape: (time, soil type, lat, lon)
       with RPN(arq_pm) as r:
         print("Opening file {0}".format(arq_pm))
-#        sys.exit()
         shf = np.squeeze(r.variables["AHF"][:])
-        print(shf.shape)
-        sys.exit()
+        # I want the grid average, getting the field number 5
+        shf = shf[:,4,:,:]
+                
         surf_temp = np.squeeze(r.variables["J8"][:]) - 273.15
+        
+        if 'lons2d' not in locals():
+          lons2d, lats2d = r.get_longitudes_and_latitudes_for_the_last_read_rec()  
+            
 
-        lons2d, lats2d = r.get_longitudes_and_latitudes_for_the_last_read_rec()  
-      
-      print(shf.shape, surf_temp.shape)
-
-      # Reading 10m wind
+      # Reading Wind and Temperature
       with RPN(arq_dm) as r:
         print("Opening file {0}".format(arq_dm))
         uu = np.squeeze(r.variables["UU"][:])
         vv = np.squeeze(r.variables["VV"][:])
+        print(uu.shape)
+        print(uu[0, 150, 150])
+        print(uu[-1, 150, 150])
 
-        #t2m = np.squeeze(r.variables["TT"][:])  
-        #t2m = r.get_first_record_for_name("TT", label="PAN_ERAI_DEF")
+        uu_10 = uu[0]
+        vv_10 = vv[0]
 
-        #PAN_CAN85_CT
-        #PAN_ERAI_DEF
-        var = r.get_4d_field('TT', label="PAN_CAN85_CT")
-        dates_tt = list(sorted(var.keys()))        
-        key = [*var[dates_tt[0]].keys()][0]
-        var_3d = np.asarray([var[d][key] for d in dates_tt])        
-        t2m = var_3d.copy()
+        tt = np.squeeze(r.variables["TT"][:])  
+        print(tt.shape)
+        print(tt[0, 150, 150])
+        print(tt[-1, 150, 150])
+        sys.exit()
+        #t2m = r.get_first_record_for_name("TT", label="PAN_ERAI_DEF")        
                 
       uv = np.sqrt(np.power(uu, 2) + np.power(vv, 2))
+      uv_10 = np.sqrt(np.power(uu_10, 2) + np.power(vv_10, 2))
       print(uu.shape, vv.shape, t2m.shape)  
 
       # Reading the wind on preassure levels
