@@ -86,21 +86,25 @@ def main():
         vv = np.squeeze(r.variables["VV"][:])
         print(uu.shape)
         
-
         uu_10 = uu[0]
         vv_10 = vv[0]
 
-        tt = np.squeeze(r.variables["TT"][:])  
+        tt = np.squeeze(r.variables["TT"][:])
+        tt_10 = tt[:,-1,:,:]  
         print(tt.shape)
-        print(tt[0,0, 150, 150])
-        print(tt[0,-1, 150, 150])
-        
+        #print(tt[0,0, 150, 150])
+        #print(tt[0,-1, 150, 150])
+        utest = r.variables["UU"]
+        ttest = r.variables["TT"]
+        print([lev for lev in utest.sorted_levels])
+        print([lev for lev in ttest.sorted_levels])
+
         #t2m = r.get_first_record_for_name("TT", label="PAN_ERAI_DEF")        
                 
       uv = np.sqrt(np.power(uu, 2) + np.power(vv, 2))
       uv_10 = np.sqrt(np.power(uu_10, 2) + np.power(vv_10, 2))
-      print(uv[0,0, 150, 150])
-      print(uv[0,-1, 150, 150])
+      #print(uv[0,0, 150, 150])
+      #print(uv[0,-1, 150, 150])
       sys.exit()
       print(uu.shape, vv.shape, t2m.shape)  
 
