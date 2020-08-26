@@ -64,9 +64,9 @@ def main():
       arq_dm_month = np.sort(glob("{0}/Samples/{1}_{2}{3:02d}/dm*".format(main_folder, exp, year, month)))
       arq_pm_month = np.sort(glob("{0}/Samples/{1}_{2}{3:02d}/pm*".format(main_folder, exp, year, month)))      
 
-      i = 0
+      m = 0
       for arq_dm, arq_pm in zip(arq_dm_month, arq_pm_month):
-        i += 1
+        m += 1
       # Reading SHF. File shape: (time, soil type, lat, lon)
         with RPN(arq_pm) as r:
           print("Opening file {0}".format(arq_pm))
@@ -167,8 +167,8 @@ def main():
           df1 = df1.assign(Dates=neg_dates)
           df2 = df2.assign(Dates=pos_dates)
 
-          df1.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}_neg.csv".format(folder, name, year, month, i))
-          df2.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}_pos.csv".format(folder, name, year, month, i))
+          df1.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_neg.csv".format(folder, name, year, month, i))
+          df2.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_pos.csv".format(folder, name, year, month, i))
         sys.exit()
 
 def geo_idx(dd, dd_array, type="lat"):
