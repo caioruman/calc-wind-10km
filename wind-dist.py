@@ -79,22 +79,22 @@ def main():
           lons2d, lats2d = r.get_longitudes_and_latitudes_for_the_last_read_rec()  
             
 
-      # Reading Wind and Temperature
+      # Reading Wind and Temperature (time, level, lat, lon)
       with RPN(arq_dm) as r:
         print("Opening file {0}".format(arq_dm))
         uu = np.squeeze(r.variables["UU"][:])
         vv = np.squeeze(r.variables["VV"][:])
         print(uu.shape)
-        print(uu[0])
-        print(uu[-1])
+        print(uu[0,0, 150, 150])
+        print(uu[0,-1, 150, 150])
 
         uu_10 = uu[0]
         vv_10 = vv[0]
 
         tt = np.squeeze(r.variables["TT"][:])  
         print(tt.shape)
-        print(tt[0])
-        print(tt[-1])
+        print(tt[0,0, 150, 150])
+        print(tt[0,-1, 150, 150])
         sys.exit()
         #t2m = r.get_first_record_for_name("TT", label="PAN_ERAI_DEF")        
                 
