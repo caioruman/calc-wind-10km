@@ -47,6 +47,10 @@ def main():
 #  Beluga
   main_folder = "/home/cruman/projects/rrg-sushama-ab/cruman/storage_model/Output/{0}".format(exp)
 
+  # constants
+  Rd = 287  # Gas constant of dry air
+  g = 9.80665 # gravity
+
   # to be put in a loop later. 
   for year in range(datai, dataf+1):    
 
@@ -71,7 +75,7 @@ def main():
           # I want the grid average, getting the field number 5
           shf = shf[:,4,:,:]
                   
-          tskin = np.squeeze(r.variables["TSKN"][:]) - 273.15
+          tskin = np.squeeze(r.variables["TSKN"][:])
           tskin = tskin[:,4,:,:]
           
           if 'lons2d' not in locals():
@@ -85,7 +89,25 @@ def main():
           vv = np.squeeze(r.variables["VV"][:])                        
 
           tt = np.squeeze(r.variables["TT"][:])
-          t2m = tt[:,-1,:,:]  
+          t2m = tt[:,-1,:,:]+273.15
+          tt = tt[:,:-1,:,:]+273.15
+
+          # position of elements: (time, z, x, y)
+          # top altitude is the 0 array index
+          gz = r.variables['GZ'][:]          
+          gz_0 = gz[:,-1,:,:]
+          # removing the last level (surface)
+          gz = gz[:,:-1,:,:]
+
+          # spliting between tt/hu and uu levels
+          gz_tt = gz[:,1::2,:,:]
+          gz_uu = gz[:,::2,:,:]
+
+          hu = r.variables['HU'][:] # specific humidity
+          hu_0 = hu[:,-1,:,:]
+          hu = hu[:,:-1,:,:]
+
+          mslp = np.squeeze(r.variables['PN'][:])
                   
           utest = r.variables["UU"]
           #ttest = r.variables["TT"]
@@ -97,10 +119,23 @@ def main():
 
           #t2m = r.get_first_record_for_name("TT", label="PAN_ERAI_DEF")        
                   
-        uv = np.sqrt(np.power(uu, 2) + np.power(vv, 2))
+        # Converting to m/s
+        uv = np.sqrt(np.power(uu, 2) + np.power(vv, 2))/1.944
         uv_10 = uv[:,-1,:,:]
         uv = uv[:,:-1,:,:]
-        tt = tt[:,:-1,:,:]
+
+        # Virtual Temperature
+        tv = tt*(1 + 0.61*(hu/(1-hu)))
+        tv_0 = t2m*(1 + 0.61*(hu_0/(1-hu_0)))    
+
+        mslp_a = np.zeros_like(tt)    
+        mslp_a += mslp
+
+        p = mslp_a/(np.exp(gz_tt*g/(Rd*tv)))
+
+        # estimating the air density
+        pho = p/(Rd*tv)
+        pho_0 = mslp/(Rd*tv_0)
               
         lats = []
         lons = []
@@ -123,6 +158,22 @@ def main():
           # Separating the negative and positive values, to apply to the wind
           neg_shf = np.less_equal(shf[:, i, j], 0)
 
+          neg_pho = pho[neg_shf, :, i, j]
+          pos_pho = pho[~neg_shf, :, i, j]
+
+          neg_pho_0 = pho_0[neg_shf, i, j]
+          pos_pho_0 = pho_0[~neg_shf, i, j]
+          
+
+          neg_p = p[neg_shf, :, i, j]
+          pos_p = p[~neg_shf, :, i, j]
+
+          neg_gz_tt = gz_tt[neg_shf, :, i, j]
+          pos_gz_tt = gz_tt[~neg_shf, :, i, j]
+
+          neg_gz_uu = gz_uu[neg_shf, :, i, j]
+          pos_gz_uu = gz_uu[~neg_shf, :, i, j]
+
           neg_wind = uv_10[neg_shf, i, j]
           pos_wind = uv_10[~neg_shf, i, j]
 
@@ -141,6 +192,26 @@ def main():
           neg_dates = dates[neg_shf]
           pos_dates = dates[~neg_shf]
 
+          # temps
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_tt_model, pos_tt_model, 'temp', None, [neg_t2m, pos_t2m], [neg_stemp, pos_stemp])
+
+          # Wind
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_wind_model, pos_wind_model, 'wind', [neg_wind, pos_wind])
+
+          # GZ Wind
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_gz_uu, pos_gz_uu, 'gz_wind')
+
+          # GZ Temp
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_gz_tt, pos_gz_tt, 'gz_temp')
+
+          # Density
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_pho, pos_pho, 'density')
+
+          # Pressure
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_p, pos_p, 'pressure', None, None, None, [neg_pho_0, pos_pho_0])
+
+          
+""" 
           df1 = pd.DataFrame(data=neg_wind_model, columns=levels)
           df2 = pd.DataFrame(data=pos_wind_model, columns=levels)
 
@@ -165,8 +236,34 @@ def main():
           df2 = df2.assign(Dates=pos_dates)
 
           df1.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_neg.csv".format(folder, name, year, month, m))
-          df2.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_pos.csv".format(folder, name, year, month, m))
-        
+          df2.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_pos.csv".format(folder, name, year, month, m)) """
+
+def saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, data_neg, data_pos, df_name, UV=None, T2M=None, Skin=None, pho=None):
+
+  df1 = pd.DataFrame(data=data_neg, columns=levels)
+  df2 = pd.DataFrame(data=data_pos, columns=levels)
+
+  df1 = df1.assign(Dates=neg_dates)
+  df2 = df2.assign(Dates=pos_dates)
+
+  if T2M is not None:
+    df1 = df1.assign(T2M=T2M[0])
+    df2 = df2.assign(T2M=T2M[1])
+
+  if UV is not None:
+    df1 = df1.assign(UV10=UV[0])
+    df2 = df2.assign(UV10=UV[1])
+
+  if Skin is not None:
+    df1 = df1.assign(Tskin=Skin[0])
+    df2 = df2.assign(Tskin=Skin[1])
+
+  if pho is not None:
+    df1 = df1.assign(Tskin=pho[0])
+    df2 = df2.assign(Tskin=pho[1])
+
+  df1.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_{5}_neg.csv".format(folder, name, year, month, m, df_name))
+  df2.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_{5}_pos.csv".format(folder, name, year, month, m, df_name))        
 
 def geo_idx(dd, dd_array, type="lat"):
   '''
