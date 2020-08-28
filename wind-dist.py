@@ -44,6 +44,7 @@ def main():
   #exp = "cPanCan_011deg_ERA5_80lvl_rerun"
       
   folder = "/home/cruman/Documents/Scripts/calc-wind-10km"
+  folder = "/home/cruman/projects/rrg-sushama-ab/cruman/Data/Phase2"
 #  Cedar
 #  main_folder = "/home/cruman/projects/rrg-sushama-ab/teufel/{0}".format(exp)
 #  Beluga
@@ -86,7 +87,14 @@ def main():
 
         # Reading Wind and Temperature (time, level, lat, lon)
         with RPN(arq_dm) as r:
+          
           print("Opening file {0}".format(arq_dm))
+
+          #mslp = np.squeeze(r.variables['PN'][:])
+#          mslp = r.variables['PN'][:]
+          #print(mslp)
+          #print(mslp.shape)
+          #sys.exit()
           uu = np.squeeze(r.variables["UU"][:])
           vv = np.squeeze(r.variables["VV"][:])                        
 
@@ -131,8 +139,9 @@ def main():
         tv = tt*(1 + 0.61*(hu/(1-hu)))
         tv_0 = t2m*(1 + 0.61*(hu_0/(1-hu_0)))    
 
-        mslp_a = np.zeros_like(tt)    
-        mslp_a += mslp
+        mslp_a = np.zeros_like(tt)
+        for t in range(mslp.shape[0]):
+            mslp_a[:,t] += mslp[t]
 
         p = mslp_a/(np.exp(gz_tt*g/(Rd*tv)))
 
