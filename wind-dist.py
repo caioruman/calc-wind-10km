@@ -31,15 +31,17 @@ parser=argparse.ArgumentParser(description='Separates the wind profiles based on
 #parser.add_argument("-op", "--opt-arg", type=str, dest='opcional', help="Algum argumento opcional no programa", default=False)
 parser.add_argument("anoi", type=int, help="Ano", default=0)
 parser.add_argument("anof", type=int, help="Anof", default=0)
+parser.add_argument("exp", type=str, help="Simulation Name", default=0)
 args=parser.parse_args()
 
 datai = args.anoi
 dataf = args.anof
+exp = args.exp
 
 
 def main():
   
-  exp = "cPanCan_011deg_ERA5_80lvl_rerun"
+  #exp = "cPanCan_011deg_ERA5_80lvl_rerun"
       
   folder = "/home/cruman/Documents/Scripts/calc-wind-10km"
 #  Cedar
@@ -64,7 +66,7 @@ def main():
         m += 1
 
         name = "71925__Cambridge_Bay__NT_YCB"
-        if os.path.exists("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_windpress_neg.csv".format(folder, name, year, month, m)):
+        if os.path.exists("{0}/CSV_{5}/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_windpress_neg.csv".format(folder, name, year, month, m, exp)):
           print("{0}-{1}-{2} already calculated. skipping.".format(year, month, m))
           continue
 
@@ -151,7 +153,7 @@ def main():
 
         # looping throught all the stations
         for lat, lon, name in zip(lats, lons, stnames):
-          os.system('mkdir -p {1}/CSV/{3}/{0}{2:02d}'.format(year, folder, month, name))
+          os.system('mkdir -p {1}/CSV_{4}/{3}/{0}{2:02d}'.format(year, folder, month, name, exp))
           # Extract the info from the grid 
           i, j = geo_idx([lat, lon], np.array([lats2d, lons2d]))
 
@@ -262,8 +264,8 @@ def saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, da
     df1 = df1.assign(Tskin=pho[0])
     df2 = df2.assign(Tskin=pho[1])
 
-  df1.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_{5}_neg.csv".format(folder, name, year, month, m, df_name))
-  df2.to_csv("{0}/CSV/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_{5}_pos.csv".format(folder, name, year, month, m, df_name))        
+  df1.to_csv("{0}/CSV_{6}/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_{5}_neg.csv".format(folder, name, year, month, m, df_name, exp))
+  df2.to_csv("{0}/CSV_{6}/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_{5}_pos.csv".format(folder, name, year, month, m, df_name, exp))        
 
 def geo_idx(dd, dd_array, type="lat"):
   '''
