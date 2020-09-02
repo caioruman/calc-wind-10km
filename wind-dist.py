@@ -67,7 +67,7 @@ def main():
         m += 1
 
         name = "71925__Cambridge_Bay__NT_YCB"
-        if os.path.exists("{0}/CSV_{5}/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_windpress_neg.csv".format(folder, name, year, month, m, exp)):
+        if os.path.exists("{0}/CSV_{5}/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_wind_neg.csv".format(folder, name, year, month, m, exp)):
           print("{0}-{1}-{2} already calculated. skipping.".format(year, month, m))
           continue
 
