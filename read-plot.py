@@ -50,7 +50,7 @@ def main():
   stations = open('DatFiles/stations.txt', 'r')
   for line in stations:
     aa = line.replace("\n", '').split(';')
-    if (aa[0] != "#"):      
+    if (aa[0] != "#"):     
       lats.append(float(aa[3]))
       lons.append(float(aa[5]))
       stnames.append(aa[1].replace(',',"_"))
@@ -63,6 +63,7 @@ def main():
       #for year in range(datai, dataf+1):        
       # open CSV
       aux_path = "{0}/{1}".format(folder, sname)
+      aux_path = folder
 
         #days = monthrange(year, month)
 
@@ -146,9 +147,9 @@ def readDataCSV(aux_path, name, smonths, var, UV=False, T2M=False, pho=False):
 
   for year in range(datai, dataf+1):
     for month in smonths:
-      file_path_pos = "{0}/{2}{3:02d}/{1}_{2}{3:02d}*_{4}_pos.csv".format(aux_path, name, year, month, var)
-      file_path_neg = "{0}/{2}{3:02d}/{1}_{2}{3:02d}*_{4}_neg.csv".format(aux_path, name, year, month, var)
-      
+      file_path_pos = "{0}/{1}/{2}{3:02d}/{1}_{2}{3:02d}*_{4}_pos.csv".format(aux_path, name, year, month, var)
+      file_path_neg = "{0}/{1}/{2}{3:02d}/{1}_{2}{3:02d}*_{4}_neg.csv".format(aux_path, name, year, month, var)
+
       aux_p.extend(glob(file_path_pos))
       aux_n.extend(glob(file_path_neg))
     
@@ -220,7 +221,7 @@ def kmeans_probability(df, df_tmp):
 
 def calc_kerneldensity(df):
   hist_aux = []
-  for i in range(0,len(df.columns)):
+  for i in range(0,df.shape[1]):
     kde_skl = KernelDensity(bandwidth=0.4)
     #aux = np.array(df_n['1000.0'])
     aux = np.copy(df[:,i])
@@ -256,14 +257,16 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
   for k, letter in zip(range(0,4), ['a', 'b', 'c', 'd']):
     subplt = '22{0}'.format(k+1)
     plt.subplot(subplt)
-
-    CS = plt.contourf(X, Y, histo[k], cmap='cmo.haline', extend='max')
+    
+    #print(histo[k])
+    #print(histo[k])
+    #CS = plt.contourf(X, Y, histo[k], cmap='cmo.haline', extend='max')
     #CS.set_clim(vmin, vmax)
     plt.gca().invert_yaxis()
     plt.plot(centroids[k], y, color='white', marker='o', lw=4, markersize=10, markeredgecolor='k')
-    if (k % 2):
-      CB = plt.colorbar(CS, extend='both', ticks=v)
-      CB.ax.tick_params(labelsize=20)
+    #if (k % 2):
+    #  CB = plt.colorbar(CS, extend='both', ticks=v)
+    #  CB.ax.tick_params(labelsize=20)
     #plt.xlim(0,800)
     plt.ylim(1000,700)
     #plt.xticks(np.arange(0,40,5), fontsize=20)
