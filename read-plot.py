@@ -255,7 +255,7 @@ def calc_histogram(df, irange=0, frange=40.25):
     hist, bins = np.histogram(df[:,i], bins=bins)
     hist_l.append(hist*100/sum(hist))
 
-  return np.array(hist_l)
+  return hist_l
 
 def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period):
 
