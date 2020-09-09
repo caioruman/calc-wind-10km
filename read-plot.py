@@ -263,6 +263,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     #CS = plt.contourf(X, Y, histo[k], cmap='cmo.haline', extend='max')
     #CS.set_clim(vmin, vmax)
     plt.gca().invert_yaxis()
+    print(centroids[k])
     plt.plot(centroids[k], y, color='white', marker='o', lw=4, markersize=10, markeredgecolor='k')
     #if (k % 2):
     #  CB = plt.colorbar(CS, extend='both', ticks=v)
