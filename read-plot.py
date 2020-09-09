@@ -213,11 +213,26 @@ def kmeans_probability(df, df_tmp):
   hist_0 = calc_kerneldensity(df_0)
   hist_1 = calc_kerneldensity(df_1)  
 
+  #plot_stuff(hist_0, centroids[0])
+  #plot_stuff(hist_1, centroids[1])
+  #sys.exit()
+
   #centroids = kmeans.cluster_centers_, [hist_0, hist_1], [df_0.shape[0]*100/df_a.shape[0], df_1.shape[0]*100/df_a.shape[0]]
 
   perc = [df_0.shape[0]*100/df_a.shape[0], df_1.shape[0]*100/df_a.shape[0]]
 
   return df_tmp_0, df_0, df_tmp_1, df_1, centroids, [profileT_0, profileT_1], [histT_0, histT_1], [hist_0, hist_1], perc
+
+def plot_stuff(hist, means):
+
+  fig = plt.figure(figsize=[28,16])
+  plt.gca().invert_yaxis()
+  CS = plt.contourf(X, Y, hist, cmap='cmo.haline', extend='max')
+  #CS.set_clim(vmin, vmax)
+  plt.plot(means, y, color='white', marker='o', lw=4, markersize=10, markeredgecolor='k')
+  CB = plt.colorbar(CS, extend='both', ticks=v)
+  CB.ax.tick_params(labelsize=20)
+  plt.ylim(1,0)
 
 def calc_kerneldensity(df):
   hist_aux = []
@@ -246,10 +261,10 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
 
   y = levels
   #x = np.arange(0,40,1)
-  x = np.arange(0,8000,10)
+  x = np.arange(0,50,0.5)
   X, Y= np.meshgrid(x, y)
   vmin=0
-  vmax=1500
+  vmax=100
   v = np.arange(vmin, vmax+1, 15)  
 
   fig = plt.figure(figsize=[28,16])
@@ -260,14 +275,14 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     
     #print(histo[k])
     #print(histo[k])
-    #CS = plt.contourf(X, Y, histo[k], cmap='cmo.haline', extend='max')
-    #CS.set_clim(vmin, vmax)
+    CS = plt.contourf(X, Y, histo[k], cmap='cmo.haline', extend='max')
+    CS.set_clim(vmin, vmax)
     plt.gca().invert_yaxis()
     print(centroids[k])
     plt.plot(centroids[k], y, color='white', marker='o', lw=4, markersize=10, markeredgecolor='k')
-    #if (k % 2):
-    #  CB = plt.colorbar(CS, extend='both', ticks=v)
-    #  CB.ax.tick_params(labelsize=20)
+    if (k % 2):
+      CB = plt.colorbar(CS, extend='both', ticks=v)
+      CB.ax.tick_params(labelsize=20)
     #plt.xlim(0,800)
     plt.ylim(1,0)
     #plt.xticks(np.arange(0,40,5), fontsize=20)
