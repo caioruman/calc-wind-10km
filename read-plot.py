@@ -268,7 +268,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     #  CB = plt.colorbar(CS, extend='both', ticks=v)
     #  CB.ax.tick_params(labelsize=20)
     #plt.xlim(0,800)
-    plt.ylim(1000,700)
+    plt.ylim(1,0)
     #plt.xticks(np.arange(0,40,5), fontsize=20)
     plt.yticks(y, fontsize=20)
     plt.title('({0}) {1:2.2f} % {2}'.format(letter, perc[k], shf[k]), fontsize='20')
