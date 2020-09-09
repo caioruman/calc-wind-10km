@@ -39,7 +39,8 @@ exp = args.exp
 def main():
 
   # CSV data folder: /pixel/project01/cruman/ModelData/cPanCan_011deg_ERA5_90lvl_rerun/CSV_cPanCan_011deg_ERA5_90lvl_rerun
-  folder = "/pixel/project01/cruman/ModelData/{0}/CSV_{0}".format(exp)  
+  folder = "/pixel/project01/cruman/ModelData/{0}/CSV_{0}".format(exp)
+  folder = "/home/cruman/projects/rrg-sushama-ab/cruman/Data/Phase2/CSV_{0}".format(exp)
 
   season = [['DJF', (12, 1, 2)], ['JJA', (6, 7, 8)]]  
 
