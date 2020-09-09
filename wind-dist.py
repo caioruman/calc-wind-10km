@@ -217,10 +217,10 @@ def main():
           saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_gz_tt, pos_gz_tt, 'gz_temp')
 
           # Density
-          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_pho, pos_pho, 'density')
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_pho, pos_pho, 'density', None, None, None, [neg_pho_0, pos_pho_0])
 
           # Pressure
-          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_p, pos_p, 'pressure', None, None, None, [neg_pho_0, pos_pho_0])
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_p, pos_p, 'pressure')
 
           
 """ 
@@ -271,8 +271,8 @@ def saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, da
     df2 = df2.assign(Tskin=Skin[1])
 
   if pho is not None:
-    df1 = df1.assign(Tskin=pho[0])
-    df2 = df2.assign(Tskin=pho[1])
+    df1 = df1.assign(Pho=pho[0])
+    df2 = df2.assign(Pho=pho[1])
 
   df1.to_csv("{0}/CSV_{6}/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_{5}_neg.csv".format(folder, name, year, month, m, df_name, exp))
   df2.to_csv("{0}/CSV_{6}/{1}/{2}{3:02d}/{1}_{2}{3:02d}{4:02d}_{5}_pos.csv".format(folder, name, year, month, m, df_name, exp))        
