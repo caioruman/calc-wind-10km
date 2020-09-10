@@ -211,10 +211,10 @@ def main():
           saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_wind_model, pos_wind_model, 'wind', [neg_wind, pos_wind])
 
           # GZ Wind
-          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_gz_uu, pos_gz_uu, 'gz_wind')
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_gz_uu, pos_gz_uu, 'gz-wind')
 
           # GZ Temp
-          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_gz_tt, pos_gz_tt, 'gz_temp')
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_gz_tt, pos_gz_tt, 'gz-temp')
 
           # Density
           saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_pho, pos_pho, 'density', None, None, None, [neg_pho_0, pos_pho_0])
