@@ -10,16 +10,14 @@ from datetime import date, datetime, timedelta
 from calendar import monthrange
 
 from glob import glob
-from rpn.rpn import RPN
-from rpn.domains.rotated_lat_lon import RotatedLatLon
-from rpn import level_kinds
 
-from netCDF4 import Dataset
 import time
 
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
 from sklearn.neighbors import KernelDensity
+
+import cmocean
 
 '''
   - 
@@ -40,6 +38,7 @@ def main():
 
   # CSV data folder: /pixel/project01/cruman/ModelData/cPanCan_011deg_ERA5_90lvl_rerun/CSV_cPanCan_011deg_ERA5_90lvl_rerun
   folder = "/pixel/project01/cruman/ModelData/{0}/CSV_{0}".format(exp)
+  folder = '/home/caioruman/Documents/McGill/Data/CSV_{0}'.format(exp)
   #folder = "/home/cruman/projects/rrg-sushama-ab/cruman/Data/Phase2/CSV_{0}".format(exp)
 
   season = [['DJF', (12, 1, 2)], ['JJA', (6, 7, 8)]]  
@@ -72,11 +71,11 @@ def main():
       wind_pos, wind_neg = readDataCSV(aux_path, name, smonths, 'wind', True)
       temp_pos, temp_neg = readDataCSV(aux_path, name, smonths, 'temp', False, True)
       # The column TSkin in the pho files are actually the Density near the surface. This will change the next time I run wind-dist.py
-      pho_pos, pho_neg = readDataCSV(aux_path, name, smonths, 'density')
+      pho_pos, pho_neg = readDataCSV(aux_path, name, smonths, 'density', False, False, True)
       # the false false true must go to the density line soon
-      press_pos, press_neg = readDataCSV(aux_path, name, smonths, 'pressure', False, False, True)
-      gzwind_pos, gzwind_neg = readDataCSV(aux_path, name, smonths, 'gz_wind')
-      gztemp_pos, gztemp_neg = readDataCSV(aux_path, name, smonths, 'gz_temp')
+      press_pos, press_neg = readDataCSV(aux_path, name, smonths, 'pressure')
+      gzwind_pos, gzwind_neg = readDataCSV(aux_path, name, smonths, 'gz-wind')
+      gztemp_pos, gztemp_neg = readDataCSV(aux_path, name, smonths, 'gz-temp')
 
       # All the fields are read, now do stuff
 
@@ -86,11 +85,22 @@ def main():
       df_tmp_0_p, df_wind_0_p, df_tmp_1_p, df_wind_1_p, centroids_P, profileT_P, histT_P, hist_P, perc_P = kmeans_probability(wind_pos, temp_pos)      
 
       # some plots
-      levels = wind_pos.columns
+      levels = [float(x) for x in wind_pos.columns]
+      levels = gzwind_neg.mean()
+
       cent, histo, perc, shf = create_lists_preplot(centroids_N, centroids_P, hist_N, hist_P, perc_N, perc_P)
 
-      plot_wind_seasonal(levels, cent, histo, perc, shf, datai, dataf, name, sname)
+      #plot_wind_seasonal(levels, cent, histo, perc, shf, datai, dataf, name, sname, True)
 
+      cent, histo, perc, shf = create_lists_preplot(profileT_N, profileT_P, histT_N, histT_P, perc_N, perc_P)
+      
+      levels = gztemp_neg.mean()
+      #print(histT_N[0].shape)
+      #print(histo[0].shape)
+
+      plot_wind_seasonal(levels, cent, histo, perc, shf, datai, dataf, name, sname)
+      
+      sys.exit()
 
       # Option 2: Detect the inversions using the Khan Paper Method. Save deltaZ, deltaT and %. Also find the level of Max wind value. Also save the Date the time of the inversion.        
 
@@ -171,8 +181,8 @@ def readDataCSV(aux_path, name, smonths, var, UV=False, T2M=False, pho=False):
     df_p = df_p.drop(columns=['UV10'])  
 
   if pho:
-    df_n = df_n.drop(columns=['Tskin'])
-    df_p = df_p.drop(columns=['Tskin'])
+    df_n = df_n.drop(columns=['Pho'])
+    df_p = df_p.drop(columns=['Pho'])
 
   return df_p, df_n
 
@@ -202,16 +212,22 @@ def kmeans_probability(df, df_tmp):
   profileT_0 = np.mean(df_tmp_0, axis=0)
   profileT_1 = np.mean(df_tmp_1, axis=0)
 
-  histT_0 = calc_histogram(df_tmp_0, -50, 20.1)
-  histT_1 = calc_histogram(df_tmp_1, -50, 20.1)
+  aux_grid = np.linspace(223.15,293.15,80)
+  print()
+  histT_0 = calc_histogram(df_tmp_0, 223.15, 293.15)
+  histT_1 = calc_histogram(df_tmp_1, 223.15, 293.15)
+
+  #histT_0 = calc_kerneldensity(df_tmp_0, aux_grid)
+  #histT_1 = calc_kerneldensity(df_tmp_1, aux_grid) 
 
   # Getting the probability distribution. Bins of 0.5 m/s
  # hist_0 = calc_histogram(df_0)
  # hist_1 = calc_histogram(df_1)
 
   # Getting the probability distribution. Kernel Density  
-  hist_0 = calc_kerneldensity(df_0)
-  hist_1 = calc_kerneldensity(df_1)  
+  aux_grid = np.linspace(0,40,80)
+  hist_0 = calc_kerneldensity(df_0, aux_grid)
+  hist_1 = calc_kerneldensity(df_1, aux_grid)  
 
   #plot_stuff(hist_0, centroids[0])
   #plot_stuff(hist_1, centroids[1])
@@ -223,50 +239,53 @@ def kmeans_probability(df, df_tmp):
 
   return df_tmp_0, df_0, df_tmp_1, df_1, centroids, [profileT_0, profileT_1], [histT_0, histT_1], [hist_0, hist_1], perc
 
-def plot_stuff(hist, means):
-
-  fig = plt.figure(figsize=[28,16])
-  plt.gca().invert_yaxis()
-  CS = plt.contourf(X, Y, hist, cmap='cmo.haline', extend='max')
-  #CS.set_clim(vmin, vmax)
-  plt.plot(means, y, color='white', marker='o', lw=4, markersize=10, markeredgecolor='k')
-  CB = plt.colorbar(CS, extend='both', ticks=v)
-  CB.ax.tick_params(labelsize=20)
-  plt.ylim(1,0)
-
-def calc_kerneldensity(df):
+def calc_kerneldensity(df, aux_grid):
   hist_aux = []
   for i in range(0,df.shape[1]):
     kde_skl = KernelDensity(bandwidth=0.4)
     #aux = np.array(df_n['1000.0'])
-    aux = np.copy(df[:,i])
-    aux_grid2 = np.linspace(0,40,80)
+    aux = np.copy(df[:,i])    
     kde_skl.fit(aux[:, np.newaxis])
-    log_pdf = kde_skl.score_samples(aux_grid2[:, np.newaxis])
+    log_pdf = kde_skl.score_samples(aux_grid[:, np.newaxis])
     hist_aux.append(np.exp(log_pdf)*100)
+    
+    
 
   return hist_aux
 
 def calc_histogram(df, irange=0, frange=40.25):
 
   hist_l = []
-  bins = np.arange(irange,frange,1)
+  bins = np.arange(irange,frange+1,1)  
   for i in range(0, df.shape[1]):    
     hist, bins = np.histogram(df[:,i], bins=bins)
     hist_l.append(hist*100/sum(hist))
+    print(sum(hist*100/sum(hist)))
 
   return np.asarray(hist_l)
 
-def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period):
+def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period, wind=False):
 
   y = levels
-  #x = np.arange(0,40,1)
-  x = np.arange(0,50,0.5)
-  X, Y= np.meshgrid(x, y)
-  vmin=0
-  vmax=100
-  v = np.arange(vmin, vmax+1, 15)  
+  #x = np.arange(0,40,1)  
+  if wind:
+    x = np.linspace(0,40,80)
+    vmin=0
+    vmax=40
+    var = 'wind'
+    
+  else:
+    # for temperature
+    x = np.arange(223.15,293.15,1)
+    #x = np.linspace(223.15,293.15,80)
+    print(x.shape)
+    vmin=223
+    vmax=293
+    var = 'tmp'  
 
+  X, Y= np.meshgrid(x, y)
+   
+  v = np.arange(vmin, vmax+1, 2) 
   fig = plt.figure(figsize=[28,16])
 
   for k, letter in zip(range(0,4), ['a', 'b', 'c', 'd']):
@@ -276,22 +295,28 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     #print(histo[k])
     #print(histo[k])
     CS = plt.contourf(X, Y, histo[k], cmap='cmo.haline', extend='max')
-    CS.set_clim(vmin, vmax)
-    plt.gca().invert_yaxis()
-    print(centroids[k])
+    #CS.set_clim(vmin, vmax)
+    #plt.gca().invert_yaxis()
+    #print(centroids[k])
     plt.plot(centroids[k], y, color='white', marker='o', lw=4, markersize=10, markeredgecolor='k')
     if (k % 2):
-      CB = plt.colorbar(CS, extend='both', ticks=v)
+      CB = plt.colorbar(CS, extend='both')
       CB.ax.tick_params(labelsize=20)
-    #plt.xlim(0,800)
-    plt.ylim(1,0)
-    #plt.xticks(np.arange(0,40,5), fontsize=20)
-    plt.yticks(y, fontsize=20)
+    
+    if wind:
+      plt.xlim(0,25)
+      plt.xticks(np.arange(0,25,5), fontsize=20)
+    else:
+      plt.xticks(np.arange(225,291,5), fontsize=20)
+    
+    #plt.ylim(1,0)
+    
+    plt.yticks(np.arange(0,max(y),10), fontsize=20)    
     plt.title('({0}) {1:2.2f} % {2}'.format(letter, perc[k], shf[k]), fontsize='20')
   plt.tight_layout()
-  plt.savefig('Images/{0}_{1}{2}_{3}_wpe.png'.format(name, datai, dataf, period), pad_inches=0.0, bbox_inches='tight')
+  plt.savefig('Images/{0}_{1}{2}_{3}_{4}.png'.format(name, datai, dataf, period, var), pad_inches=0.0, bbox_inches='tight')
   plt.close()
-  sys.exit()
+  
 
   return None 
 
