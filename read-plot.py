@@ -80,35 +80,44 @@ def main():
       # All the fields are read, now do stuff
 
       # Option 1: Calculate the mean profile of the variables and save to a txt to plot later      
-      df_tmp_0_n, df_wind_0_n, df_tmp_1_n, df_wind_1_n, centroids_N, profileT_N, histT_N, hist_N, perc_N = kmeans_probability(wind_neg, temp_neg)
+      df_tmp_0_n, df_wind_0_n, df_tmp_1_n, df_wind_1_n, centroids_N, profileT_N, histT_N, hist_N, perc_N, numb_N = kmeans_probability(wind_neg, temp_neg)
            
-      df_tmp_0_p, df_wind_0_p, df_tmp_1_p, df_wind_1_p, centroids_P, profileT_P, histT_P, hist_P, perc_P = kmeans_probability(wind_pos, temp_pos)      
+      df_tmp_0_p, df_wind_0_p, df_tmp_1_p, df_wind_1_p, centroids_P, profileT_P, histT_P, hist_P, perc_P, numb_P = kmeans_probability(wind_pos, temp_pos)      
 
       # some plots
       levels = [float(x) for x in wind_pos.columns]
       levels = gzwind_neg.mean()
 
-      cent, histo, perc, shf = create_lists_preplot(centroids_N, centroids_P, hist_N, hist_P, perc_N, perc_P)
+      cent, histo, perc, shf, numb = create_lists_preplot(centroids_N, centroids_P, hist_N, hist_P, perc_N, perc_P, numb_N, numb_P)
 
-      #plot_wind_seasonal(levels, cent, histo, perc, shf, datai, dataf, name, sname, True)
+      plot_wind_seasonal(levels, cent, histo, perc, shf, datai, dataf, name, sname, numb, True)
 
-      cent, histo, perc, shf = create_lists_preplot(profileT_N, profileT_P, histT_N, histT_P, perc_N, perc_P)
+      cent, histo, perc, shf, numb = create_lists_preplot(profileT_N, profileT_P, histT_N, histT_P, perc_N, perc_P, numb_N, numb_P)
       
       levels = gztemp_neg.mean()
       #print(histT_N[0].shape)
       #print(histo[0].shape)
 
-      plot_wind_seasonal(levels, cent, histo, perc, shf, datai, dataf, name, sname)
+      plot_wind_seasonal(levels, cent, histo, perc, shf, datai, dataf, name, sname, numb)
       
-      sys.exit()
+      #sys.exit()
 
-      # Option 2: Detect the inversions using the Khan Paper Method. Save deltaZ, deltaT and %. Also find the level of Max wind value. Also save the Date the time of the inversion.        
+      # Option 2: Detect the inversions using the Khan Paper Method. 
+      # Save deltaZ, deltaT and %. 
+      # Also find the level of Max wind value. 
+      # Also save the Date the time of the inversion.
+      #
+      # Merge the two dataframes separated by SH
+      # Detect the inversions in each. Save deltaZ, deltaT and %
+      # Split the dataframes based on the Inversion
+      # Do the clustering analysis
 
-def create_lists_preplot(centroids_n, centroids_p, histo_n, histo_p, perc_n, perc_p):
+def create_lists_preplot(centroids_n, centroids_p, histo_n, histo_p, perc_n, perc_p, numb_n, numb_p):
   cent = []
   histo = []
   perc = []
   shf = []
+  numb = []
 
   if (perc_n[0] > perc_n[1]):
     k = 0
@@ -129,6 +138,9 @@ def create_lists_preplot(centroids_n, centroids_p, histo_n, histo_p, perc_n, per
   shf.append('SHF-')
   shf.append('SHF-')      
 
+  numb.append(numb_n[k])
+  numb.append(numb_n[j])
+
   if (perc_p[0] > perc_p[1]):
     k = 0
     j = 1
@@ -148,7 +160,10 @@ def create_lists_preplot(centroids_n, centroids_p, histo_n, histo_p, perc_n, per
   shf.append('SHF+')
   shf.append('SHF+')
 
-  return cent, histo, perc, shf
+  numb.append(numb_p[k])
+  numb.append(numb_p[j])
+
+  return cent, histo, perc, shf, numb
 
 def readDataCSV(aux_path, name, smonths, var, UV=False, T2M=False, pho=False):
 
@@ -213,12 +228,12 @@ def kmeans_probability(df, df_tmp):
   profileT_1 = np.mean(df_tmp_1, axis=0)
 
   aux_grid = np.linspace(223.15,293.15,80)
-  print()
-  histT_0 = calc_histogram(df_tmp_0, 223.15, 293.15)
-  histT_1 = calc_histogram(df_tmp_1, 223.15, 293.15)
+  #print()
+  #histT_0 = calc_histogram(df_tmp_0, 223.15, 293.15)
+  #histT_1 = calc_histogram(df_tmp_1, 223.15, 293.15)
 
-  #histT_0 = calc_kerneldensity(df_tmp_0, aux_grid)
-  #histT_1 = calc_kerneldensity(df_tmp_1, aux_grid) 
+  histT_0 = calc_kerneldensity(df_tmp_0, aux_grid)
+  histT_1 = calc_kerneldensity(df_tmp_1, aux_grid) 
 
   # Getting the probability distribution. Bins of 0.5 m/s
  # hist_0 = calc_histogram(df_0)
@@ -236,8 +251,9 @@ def kmeans_probability(df, df_tmp):
   #centroids = kmeans.cluster_centers_, [hist_0, hist_1], [df_0.shape[0]*100/df_a.shape[0], df_1.shape[0]*100/df_a.shape[0]]
 
   perc = [df_0.shape[0]*100/df_a.shape[0], df_1.shape[0]*100/df_a.shape[0]]
+  numb = [df_0.shape[0], df_1.shape[0]]
 
-  return df_tmp_0, df_0, df_tmp_1, df_1, centroids, [profileT_0, profileT_1], [histT_0, histT_1], [hist_0, hist_1], perc
+  return df_tmp_0, df_0, df_tmp_1, df_1, centroids, [profileT_0, profileT_1], [histT_0, histT_1], [hist_0, hist_1], perc, numb
 
 def calc_kerneldensity(df, aux_grid):
   hist_aux = []
@@ -264,7 +280,7 @@ def calc_histogram(df, irange=0, frange=40.25):
 
   return np.asarray(hist_l)
 
-def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period, wind=False):
+def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period, numb, wind=False):
 
   y = levels
   #x = np.arange(0,40,1)  
@@ -273,15 +289,17 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     vmin=0
     vmax=40
     var = 'wind'
+    lvl = np.arange(0,22,3)
     
   else:
     # for temperature
-    x = np.arange(223.15,293.15,1)
-    #x = np.linspace(223.15,293.15,80)
+    #x = np.arange(223.15,293.15,1)
+    x = np.linspace(223.15,293.15,80)
     print(x.shape)
     vmin=223
     vmax=293
     var = 'tmp'  
+    lvl = np.arange(0,13,2)
 
   X, Y= np.meshgrid(x, y)
    
@@ -294,7 +312,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     
     #print(histo[k])
     #print(histo[k])
-    CS = plt.contourf(X, Y, histo[k], cmap='cmo.haline', extend='max')
+    CS = plt.contourf(X, Y, histo[k], cmap='cmo.haline', extend='max', levels=lvl)
     #CS.set_clim(vmin, vmax)
     #plt.gca().invert_yaxis()
     #print(centroids[k])
@@ -309,10 +327,10 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     else:
       plt.xticks(np.arange(225,291,5), fontsize=20)
     
-    #plt.ylim(1,0)
+    plt.ylim(0,280)
     
-    plt.yticks(np.arange(0,max(y),10), fontsize=20)    
-    plt.title('({0}) {1:2.2f} % {2}'.format(letter, perc[k], shf[k]), fontsize='20')
+    plt.yticks(np.arange(0,280,10), fontsize=20)    
+    plt.title('({0}) {1:2.2f} % {2} | #: {3}'.format(letter, perc[k], shf[k], numb[k]), fontsize='20')
   plt.tight_layout()
   plt.savefig('Images/{0}_{1}{2}_{3}_{4}.png'.format(name, datai, dataf, period, var), pad_inches=0.0, bbox_inches='tight')
   plt.close()
