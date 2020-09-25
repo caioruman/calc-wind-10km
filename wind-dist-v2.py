@@ -121,7 +121,7 @@ def main():
           levels = levels[:-1]
           levels = [format(x, '.4f') for x in levels]
 
-          new_levels = [280, 253, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 11, 8, 6, 4, 2, 1]
+          new_levels = [240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 11, 8, 6, 4, 2, 1]
 
           #dates = [str(d) for d in utest.sorted_dates]
           dates = np.array(r.variables["UU"].sorted_dates)
@@ -240,14 +240,9 @@ def interpolateData(data, new_levels, height):
 
   data_interp = np.zeros([height.shape[0],len(new_levels)])
 
-  print(height)
-  height = height - height[-1]
-  print(height)
-
-  sys.exit()
-
   # for each date in the array
   for i in range(height.shape[0]):
+    height[i,:] -= height[i,-1]+1
     f = interpolate.interp1d(height[i,:], data[i,:], kind='linear')
     data_interp[i] = f(new_levels)
 
