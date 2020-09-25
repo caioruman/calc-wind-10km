@@ -227,7 +227,7 @@ def main():
           pho_neg_interp = interpolateData(neg_pho, new_levels, neg_gz_tt)
           pho_pos_interp = interpolateData(pos_pho, new_levels, pos_gz_tt)
 
-          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, neg_pho, pos_pho, 'density', None, None, None, [neg_pho_0, pos_pho_0])
+          saveDataframe(folder, name, year, month, m, levels, neg_dates, pos_dates, pho_neg_interp, pho_pos_interp, 'density', None, None, None, [neg_pho_0, pos_pho_0])
 
           # Pressure
 
@@ -239,6 +239,12 @@ def main():
 def interpolateData(data, new_levels, height):
 
   data_interp = np.zeros([height.shape[0],len(new_levels)])
+
+  print(height)
+  height = height - height[-1]
+  print(height)
+
+  sys.exit()
 
   # for each date in the array
   for i in range(height.shape[0]):
