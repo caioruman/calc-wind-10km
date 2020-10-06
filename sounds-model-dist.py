@@ -87,9 +87,10 @@ def readDataSoundings(folder, name, months, datai, dataf):
   # sounding levels. The vertical resolution isnt good. The linear interpolation will be strange
   levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
 
-  df_wind = pd.DataFrame()
-  df_tmp = pd.DataFrame()
+  df_wind = pd.DataFrame(columns=levels + ['Dates'])
+  df_tmp = pd.DataFrame(columns=levels + ['Dates'])
 
+  print(df_wind)
   for f in ff:
     df = pd.read_csv(f, index_col=0)
     i = 0
@@ -112,16 +113,19 @@ def readDataSoundings(folder, name, months, datai, dataf):
         aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
         aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
 
-        df_wind_aux = pd.DataFrame(data=aux_wind, index=i, columns=levels)
-        df_wind_aux['Dates'] = dt
-        df_tmp_aux = pd.DataFrame(data=aux_tmp, index=i, columns=levels)
-        df_tmp_aux['Dates'] = dt
+        print(aux_wind.tolist() + [dt])
+        df_wind.loc[i] = aux_wind.tolist() + [dt] 
+#        df_wind_aux = pd.DataFrame(data=aux_wind.transpose(), columns=levels)
+#        df_wind_aux['Dates'] = dt
+        df_tmp.loc[i] = aux_tmp.tolist() + [dt]
+#        df_tmp_aux = pd.DataFrame(data=aux_tmp.transpose(), columns=levels)
+#        df_tmp_aux['Dates'] = dt
 
-        frames = [df_wind, df_wind_aux]
-        df_wind = pd.concat(frames)
+#        frames = [df_wind, df_wind_aux]
+#        df_wind = pd.concat(frames)
 
-        frames = [df_tmp, df_tmp_aux]
-        df_tmp = pd.concat(frames)
+ #       frames = [df_tmp, df_tmp_aux]
+  #      df_tmp = pd.concat(frames)
 
         print(levels)
         print(df_wind)
