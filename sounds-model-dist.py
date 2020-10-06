@@ -111,9 +111,11 @@ def readDataSoundings(folder, name, months, datai, dataf):
         aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
         aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
 
-        df_wind_aux = pd.DataFrame(data=aux_wind, columns=levels)
+        df_wind_aux = pd.DataFrame(columns=levels)
+        df_wind_aux.append(aux_wind)
         df_wind_aux['Dates'] = dt
-        df_tmp_aux = pd.DataFrame(data=aux_tmp, columns=levels)
+        df_tmp_aux = pd.DataFrame(columns=levels)
+        df_tmp_aux.append(aux_tmp)
         df_tmp_aux['Dates'] = dt
 
         frames = [df_wind, df_wind_aux]
