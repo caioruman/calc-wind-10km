@@ -70,7 +70,21 @@ def main():
   for name_s, name in zip(stnames_comma, stnames):
     for sname, smonths in season:
 
-      wind_pos, wind_neg = readDataSoundings(sfolder, name_s, smonths, datai, dataf)
+      df_wind, df_tmp = readDataSoundings(sfolder, name_s, smonths, datai, dataf)
+
+      # Clustering analisis on the above data. Divide it by the deltaT column      
+      #stuff here
+
+      # plot just to see the results
+      # stuff here
+
+      # Read the model data
+      # stuff here
+
+      # apply the labels from the soundings to the model data
+      # stuff here
+
+      # 
 
 
 def readDataSoundings(folder, name, months, datai, dataf):
@@ -87,13 +101,12 @@ def readDataSoundings(folder, name, months, datai, dataf):
   # sounding levels. The vertical resolution isnt good. The linear interpolation will be strange
   levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
 
-  df_wind = pd.DataFrame(columns=levels + ['Dates'])
-  df_tmp = pd.DataFrame(columns=levels + ['Dates'])
-
+  df_wind = pd.DataFrame(columns=levels + ['deltaT'] + ['Dates'])
+  df_tmp = pd.DataFrame(columns=levels + ['deltaT'] + ['Dates'])
+  i = 0
   print(df_wind)
   for f in ff:
-    df = pd.read_csv(f, index_col=0)
-    i = 0
+    df = pd.read_csv(f, index_col=0)    
 
     # Loop throught the soundings
     while dt <= date_f:
@@ -113,35 +126,24 @@ def readDataSoundings(folder, name, months, datai, dataf):
         aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
         aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
 
-        print(aux_wind.tolist() + [dt])
-        df_wind.loc[i] = aux_wind.tolist() + [dt] 
-#        df_wind_aux = pd.DataFrame(data=aux_wind.transpose(), columns=levels)
-#        df_wind_aux['Dates'] = dt
-        df_tmp.loc[i] = aux_tmp.tolist() + [dt]
-#        df_tmp_aux = pd.DataFrame(data=aux_tmp.transpose(), columns=levels)
-#        df_tmp_aux['Dates'] = dt
+        aux_inv = df_aux['TEMP'][1] - df_aux['TEMP'][0]
+        
+        df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt] 
+        df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]
 
-#        frames = [df_wind, df_wind_aux]
-#        df_wind = pd.concat(frames)
-
- #       frames = [df_tmp, df_tmp_aux]
-  #      df_tmp = pd.concat(frames)
-
-        print(levels)
         print(df_wind)
         print(df_tmp)
         sys.exit()
+        # next steps:
+        # Do a try() catch() statement to catch errors and jump to the next date
 
       dt = dt + timedelta(hours=12)
       i += 1
 
     year_i += 1
-    date_f = datetime(year_i, 12, 31, 12, 0)
+    date_f = datetime(year_i, 12, 31, 12, 0)        
 
-        
-
-
-  return wind_pos, wind_neg
+  return df_wind, df_tmp
 
 def interpolateData(data, new_levels, height):
 
