@@ -18,6 +18,7 @@ from sklearn.mixture import GaussianMixture
 from sklearn.neighbors import KernelDensity
 
 import cmocean
+from scipy import interpolate
 
 '''
   - Read the soundings data 
@@ -79,6 +80,12 @@ def readDataSoundings(folder, name, months, datai, dataf):
 
   ff = np.sort(glob('{0}/{1}/soundings_*_????.csv'.format(folder, name)))
 
+  # model levels
+  new_levels = [240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 11, 8, 6, 4, 2, 1]
+
+  # sounding levels. The vertical resolution isnt good. The linear interpolation will be strange
+  levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
+
   for f in ff:
     df = pd.read_csv(f, index_col=0)
 
@@ -90,18 +97,39 @@ def readDataSoundings(folder, name, months, datai, dataf):
       if not df_aux.empty:
 
         # subtracting the first height level from the other levels
-        df_aux['HGHT'] = df['HGHT'] - df['HGHT'][0]
+        df_aux['HGHT'] = df['HGHT'] - df['HGHT'][0] + 10
         # removing indices where height > 600
         ind = df_aux[df_aux.HGHT > 600].index
         df_aux = df_aux.drop(ind)
 
         print(df_aux)
+
+        aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
+        aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
+
+        print(levels)
+        print(aux_tmp)
+        print(aux_wind)
         sys.exit()
+
+      dt = dt + timedelta(hours=12)
 
         
 
 
   return wind_pos, wind_neg
+
+def interpolateData(data, new_levels, height):
+
+  #data_interp = np.zeros([len(new_levels)])
+
+  # for each date in the array
+  #for i in range(height.shape[0]):
+    #height[i,:] -= height[i,-1]+1
+  f = interpolate.interp1d(height, data, kind='linear')
+  data_interp = f(new_levels)
+
+  return data_interp
 
 def create_lists_preplot(centroids_n, centroids_p, histo_n, histo_p, perc_n, perc_p, numb_n, numb_p):
   cent = []
