@@ -72,7 +72,7 @@ def main():
       wind_pos, wind_neg = readDataSoundings(sfolder, name_s, smonths, datai, dataf)
 
 
-def readDataSoundings(folder, name, months):
+def readDataSoundings(folder, name, months, datai, dataf):
   
   dt = datetime(datai, 1, 1, 0, 0)
   date_f = datetime(dataf, 12, 31, 12, 0)
