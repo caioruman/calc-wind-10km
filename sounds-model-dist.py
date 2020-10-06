@@ -75,8 +75,9 @@ def main():
 
 def readDataSoundings(folder, name, months, datai, dataf):
   
-  dt = datetime(datai, 1, 1, 0, 0)
-  date_f = datetime(dataf, 12, 31, 12, 0)
+  year_i = datai
+  dt = datetime(year_i, 1, 1, 0, 0)
+  date_f = datetime(year_i, 12, 31, 12, 0)
 
   ff = np.sort(glob('{0}/{1}/soundings_*_????.csv'.format(folder, name)))
 
@@ -85,6 +86,9 @@ def readDataSoundings(folder, name, months, datai, dataf):
 
   # sounding levels. The vertical resolution isnt good. The linear interpolation will be strange
   levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
+
+  df_wind = pd.DataFrame()
+  df_tmp = pd.DataFrame()
 
   for f in ff:
     df = pd.read_csv(f, index_col=0)
@@ -107,12 +111,26 @@ def readDataSoundings(folder, name, months, datai, dataf):
         aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
         aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
 
+        df_wind_aux = pd.DataFrame(aux_wind, columns=levels)
+        df_wind_aux['Dates'] = dt
+        df_tmp_aux = pd.DataFrame(aux_tmp, columns=levels)
+        df_tmp_aux['Dates'] = dt
+
+        frames = [df_wind, df_wind_aux]
+        df_wind = pd.concat(frames)
+
+        frames = [df_tmp, df_tmp_aux]
+        df_tmp = pd.concat(frames)
+
         print(levels)
-        print(aux_tmp)
-        print(aux_wind)
+        print(df_wind)
+        print(df_tmp)
         sys.exit()
 
       dt = dt + timedelta(hours=12)
+
+    year_i += 1
+    date_f = datetime(year_i, 12, 31, 12, 0)
 
         
 
