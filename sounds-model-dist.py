@@ -92,6 +92,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
 
   for f in ff:
     df = pd.read_csv(f, index_col=0)
+    i = 0
 
     # Loop throught the soundings
     while dt <= date_f:
@@ -111,11 +112,9 @@ def readDataSoundings(folder, name, months, datai, dataf):
         aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
         aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
 
-        df_wind_aux = pd.DataFrame(columns=levels)
-        df_wind_aux.append(aux_wind)
+        df_wind_aux = pd.DataFrame(data=aux_wind, index=i, columns=levels)
         df_wind_aux['Dates'] = dt
-        df_tmp_aux = pd.DataFrame(columns=levels)
-        df_tmp_aux.append(aux_tmp)
+        df_tmp_aux = pd.DataFrame(data=aux_tmp, index=i, columns=levels)
         df_tmp_aux['Dates'] = dt
 
         frames = [df_wind, df_wind_aux]
@@ -130,6 +129,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
         sys.exit()
 
       dt = dt + timedelta(hours=12)
+      i += 1
 
     year_i += 1
     date_f = datetime(year_i, 12, 31, 12, 0)
