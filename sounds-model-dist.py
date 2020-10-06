@@ -77,7 +77,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
   dt = datetime(datai, 1, 1, 0, 0)
   date_f = datetime(dataf, 12, 31, 12, 0)
 
-  ff = np.sorted(glob.glob('{0}/{1}/soundings_*_????.csv'.format(folder, name)))
+  ff = np.sort(glob('{0}/{1}/soundings_*_????.csv'.format(folder, name)))
 
   for f in ff:
     df = pd.read_csv(f, index_col=0)
