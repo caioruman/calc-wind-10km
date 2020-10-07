@@ -141,6 +141,9 @@ def readDataSoundings(folder, name, months, datai, dataf):
             continue
 
           aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
+          if np.isnan(aux_inv):
+            print(df_aux['TEMP'].values[1], df_aux['TEMP'].values[0])
+            print(df_aux['HGHT'].values[1], df_aux['HGHT'].values[0])
         
           df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt] 
           df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]        
