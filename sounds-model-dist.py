@@ -7,6 +7,7 @@ import os
 import argparse
 
 from datetime import date, datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from calendar import monthrange
 
 from glob import glob
@@ -92,15 +93,13 @@ def main():
 
 def readDataSoundings(folder, name, months, datai, dataf):
   
-  year_i = datai
-  dt = datetime(year_i, 1, 1, 0, 0)
-  date_f = datetime(year_i, 12, 31, 12, 0)
+  year_i = datai  
 
   #ff = np.sort(glob('{0}/{1}/soundings_*_????.csv'.format(folder, name)))
-  ff = [glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, x)) for x in range(datai,dataf+1)]
+  #ff = [glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, x)) for x in range(datai,dataf+1)]
 
   # model levels
-  new_levels = [240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 11, 8, 6, 4, 2, 1]
+  #new_levels = [240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 11, 8, 6, 4, 2, 1]
 
   # sounding levels. The vertical resolution isnt good. The linear interpolation will be strange
   levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
@@ -108,48 +107,48 @@ def readDataSoundings(folder, name, months, datai, dataf):
   df_wind = pd.DataFrame(columns=levels + ['deltaT'] + ['Dates'])
   df_tmp = pd.DataFrame(columns=levels + ['deltaT'] + ['Dates'])
   
-  i = 0
-  print(df_wind)
-  print(ff)
-  for f in ff:
-    print(f)
-    df = pd.read_csv(f[0], index_col=0)    
+  i = 0  
+  for y in range(datai, dataf+1):
+    f = glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, y))
+    df = pd.read_csv(f[0], index_col=0)
 
-    # Loop throught the soundings
-    while dt <= date_f:
+    for m in months:
+      
+      dt = datetime(year_i, m, 1, 0, 0)
+      date_f = dt + relativedelta(months=+1)      
 
-      print(i)
-      df_aux = df.query("Year == {0} and Month == {1} and Day == {2} and Hour == {3}".format(dt.year, dt.month, dt.day, dt.hour))
+      # Loop throught the soundings
+      while dt < date_f:
 
-      if not df_aux.empty:
+        print(i)
+        df_aux = df.query("Year == {0} and Month == {1} and Day == {2} and Hour == {3}".format(dt.year, dt.month, dt.day, dt.hour))
 
-        # subtracting the first height level from the other levels
-        df_aux['HGHT'] = df['HGHT'] - df['HGHT'][0] + 10
-        # removing indices where height > 600
-        ind = df_aux[df_aux.HGHT > 600].index
-        df_aux = df_aux.drop(ind)
+        if not df_aux.empty:
 
-        #print(df_aux)
+          # subtracting the first height level from the other levels
+          df_aux['HGHT'] = df['HGHT'] - df['HGHT'][0] + 10
+          # removing indices where height > 600
+          ind = df_aux[df_aux.HGHT > 600].index
+          df_aux = df_aux.drop(ind)
 
-        try:
-          aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
-          aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
-        except:
-          dt = dt + timedelta(hours=12)
-          continue
+          #print(df_aux)
 
-        aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
-       
-        df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt] 
-        df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]        
-        # next steps:
-        # Do a try() catch() statement to catch errors and jump to the next date
+          try:
+            aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
+            aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
+          except:
+            dt = dt + timedelta(hours=12)
+            continue
 
-      dt = dt + timedelta(hours=12)
-      i += 1
+          aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
+        
+          df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt] 
+          df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]        
+          # next steps:
+          # Do a try() catch() statement to catch errors and jump to the next date
 
-    year_i += 1
-    date_f = datetime(year_i, 12, 31, 12, 0)        
+        dt = dt + timedelta(hours=12)
+        i += 1      
 
   return df_wind, df_tmp
 
