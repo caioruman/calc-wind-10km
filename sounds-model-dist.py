@@ -138,7 +138,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
           dt = dt + timedelta(hours=12)
           continue
 
-        aux_inv = df_aux['TEMP'][1] - df_aux['TEMP'][0]
+        aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
        
         df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt] 
         df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]        
