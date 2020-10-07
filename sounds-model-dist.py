@@ -72,15 +72,35 @@ def main():
     for sname, smonths in season:
 
       df_wind, df_tmp = readDataSoundings(sfolder, name_s, smonths, datai, dataf)
-      print(df_wind)
-      print(df_tmp)
-      sys.exit()
 
-      # Clustering analisis on the above data. Divide it by the deltaT column      
-      #stuff here
+      df_wind_pos = df_wind.query("deltaT > 0")
+      df_wind_neg = df_wind.query("deltaT < 0")
+
+      df_tmp_pos = df_tmp.query("deltaT > 0")
+      df_tmp_neg = df_tmp.query("deltaT < 0")
+
+      df_wind_pos = df_wind_pos.drop(columns=['deltaT', 'Dates'])
+      df_wind_neg = df_wind_neg.drop(columns=['deltaT', 'Dates'])
+
+      df_tmp_pos = df_tmp_pos.drop(columns=['deltaT', 'Dates'])
+      df_tmp_neg = df_tmp_neg.drop(columns=['deltaT', 'Dates'])
+
+      # Clustering analysis on the above data. Divide it by the deltaT column      
+      # Columns of the dataframe: [300,275,250,225,200,175,150,125,100,75,50,25,10, deltaT, Dates]
+      # Positive means there is an temperature inversion (SH-). The use of neg and pos here is confusing
+      df_tmp_0_n, df_wind_0_n, df_tmp_1_n, df_wind_1_n, centroids_N, profileT_N, histT_N, hist_N, perc_N, numb_N, labels_N = kmeans_probability(df_wind_neg, df_tmp_neg)
+      df_tmp_0_p, df_wind_0_p, df_tmp_1_p, df_wind_1_p, centroids_P, profileT_P, histT_P, hist_P, perc_P, numb_P, labels_P = kmeans_probability(df_wind_pos, df_tmp_pos)
 
       # plot just to see the results
-      # stuff here
+
+      levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
+      cent, histo, perc, inv, numb = create_lists_preplot(centroids_N, centroids_P, hist_N, hist_P, perc_N, perc_P, numb_N, numb_P)
+
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True)
+
+      cent, histo, perc, inv, numb = create_lists_preplot(profileT_N, profileT_P, histT_N, histT_P, perc_N, perc_P, numb_N, numb_P)
+
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb)
 
       # Read the model data
       # stuff here
@@ -190,8 +210,8 @@ def create_lists_preplot(centroids_n, centroids_p, histo_n, histo_p, perc_n, per
   perc.append(perc_n[k])
   perc.append(perc_n[j])
 
-  shf.append('SHF-')
-  shf.append('SHF-')      
+  shf.append('deltaT positive')
+  shf.append('deltaT positive')      
 
   numb.append(numb_n[k])
   numb.append(numb_n[j])
@@ -212,8 +232,8 @@ def create_lists_preplot(centroids_n, centroids_p, histo_n, histo_p, perc_n, per
   perc.append(perc_p[k])
   perc.append(perc_p[j])
 
-  shf.append('SHF+')
-  shf.append('SHF+')
+  shf.append('deltaT negative')
+  shf.append('deltaT negative')
 
   numb.append(numb_p[k])
   numb.append(numb_p[j])
@@ -308,7 +328,7 @@ def kmeans_probability(df, df_tmp):
   perc = [df_0.shape[0]*100/df_a.shape[0], df_1.shape[0]*100/df_a.shape[0]]
   numb = [df_0.shape[0], df_1.shape[0]]
 
-  return df_tmp_0, df_0, df_tmp_1, df_1, centroids, [profileT_0, profileT_1], [histT_0, histT_1], [hist_0, hist_1], perc, numb
+  return df_tmp_0, df_0, df_tmp_1, df_1, centroids, [profileT_0, profileT_1], [histT_0, histT_1], [hist_0, hist_1], perc, numb, labels
 
 def calc_kerneldensity(df, aux_grid):
   hist_aux = []
