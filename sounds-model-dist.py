@@ -146,7 +146,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
         if not df_aux.empty:
 
           # subtracting the first height level from the other levels
-          df_aux['HGHT'] = df['HGHT'] - df['HGHT'][0] + 10
+          df_aux['HGHT'] = df['HGHT'] - df['HGHT'].values[0] + 10
           # removing indices where height > 600
           ind = df_aux[df_aux.HGHT > 600].index
           df_aux = df_aux.drop(ind)
