@@ -132,6 +132,9 @@ def readDataSoundings(folder, name, months, datai, dataf):
           df_aux = df_aux.drop(ind)
 
           #print(df_aux)
+          if np.isnan(df_aux['TEMP'].values[0]) or np.isnan(df_aux['HGHT'].values[0]):
+            dt = dt + timedelta(hours=12)
+            continue
 
           try:
             aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
@@ -141,11 +144,6 @@ def readDataSoundings(folder, name, months, datai, dataf):
             continue
 
           aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
-          if np.isnan(aux_inv):
-            print(df_aux['TEMP'], df_aux['HGHT'])
-            print(df_aux['TEMP'].values[1], df_aux['TEMP'].values[0])
-            print(df_aux['HGHT'].values[1], df_aux['HGHT'].values[0])
-            print(aux_tmp, aux_wind)
         
           df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt] 
           df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]        
