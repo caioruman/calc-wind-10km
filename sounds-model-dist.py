@@ -110,6 +110,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
   i = 0
   print(df_wind)
   for f in ff:
+    print(f)
     df = pd.read_csv(f, index_col=0)    
 
     # Loop throught the soundings
