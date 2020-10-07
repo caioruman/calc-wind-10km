@@ -71,6 +71,9 @@ def main():
     for sname, smonths in season:
 
       df_wind, df_tmp = readDataSoundings(sfolder, name_s, smonths, datai, dataf)
+      print(df_wind)
+      print(df_tmp)
+      sys.exit()
 
       # Clustering analisis on the above data. Divide it by the deltaT column      
       #stuff here
@@ -93,7 +96,8 @@ def readDataSoundings(folder, name, months, datai, dataf):
   dt = datetime(year_i, 1, 1, 0, 0)
   date_f = datetime(year_i, 12, 31, 12, 0)
 
-  ff = np.sort(glob('{0}/{1}/soundings_*_????.csv'.format(folder, name)))
+  #ff = np.sort(glob('{0}/{1}/soundings_*_????.csv'.format(folder, name)))
+  ff = [glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, x)) for x in range(datai,dataf+1)]
 
   # model levels
   new_levels = [240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 11, 8, 6, 4, 2, 1]
@@ -129,11 +133,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
         aux_inv = df_aux['TEMP'][1] - df_aux['TEMP'][0]
         
         df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt] 
-        df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]
-
-        print(df_wind)
-        print(df_tmp)
-        sys.exit()
+        df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]        
         # next steps:
         # Do a try() catch() statement to catch errors and jump to the next date
 
