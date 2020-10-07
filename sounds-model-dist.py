@@ -140,7 +140,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
       # Loop throught the soundings
       while dt < date_f:
 
-        print(i)
+        #print(i)
         df_aux = df.query("Year == {0} and Month == {1} and Day == {2} and Hour == {3}".format(dt.year, dt.month, dt.day, dt.hour))
 
         if not df_aux.empty:
@@ -152,7 +152,10 @@ def readDataSoundings(folder, name, months, datai, dataf):
           df_aux = df_aux.drop(ind)
 
           #print(df_aux)
-          if np.isnan(df_aux['TEMP'].values[0]) or np.isnan(df_aux['HGHT'].values[0]):
+          if np.isnan(df_aux['TEMP'].values[:10]).any() or np.isnan(df_aux['HGHT'].values[:10]).any():
+            print(df_aux['TEMP'].values[:10])
+            print(df_aux['HGHT'].values[:10])
+            print(dt)
             dt = dt + timedelta(hours=12)
             continue
 
