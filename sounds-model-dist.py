@@ -118,6 +118,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
     # Loop throught the soundings
     while dt <= date_f:
 
+      print(i)
       df_aux = df.query("Year == {0} and Month == {1} and Day == {2} and Hour == {3}".format(dt.year, dt.month, dt.day, dt.hour))
 
       if not df_aux.empty:
@@ -128,22 +129,17 @@ def readDataSoundings(folder, name, months, datai, dataf):
         ind = df_aux[df_aux.HGHT > 600].index
         df_aux = df_aux.drop(ind)
 
-        print(df_aux)
+        #print(df_aux)
 
-        aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
-        aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
+        try:
+          aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
+          aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
+        except:
+          dt = dt + timedelta(hours=12)
+          continue
 
-<<<<<<< HEAD
-        print(df_aux['TEMP'].values[1])
-        print(df_aux['TEMP'].values[0])
         aux_inv = df_aux['TEMP'][1] - df_aux['TEMP'][0]
-=======
-#        print(df_aux['TEMP'])
-#        print(df_aux['TEMP'].values[1])
-#        print(df_aux['TEMP'].values[0])
-        aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
->>>>>>> 289d24d7eb8b5a2223663efa590c66a17d1c4902
-        
+       
         df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt] 
         df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]        
         # next steps:
