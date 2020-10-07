@@ -107,11 +107,13 @@ def readDataSoundings(folder, name, months, datai, dataf):
 
   df_wind = pd.DataFrame(columns=levels + ['deltaT'] + ['Dates'])
   df_tmp = pd.DataFrame(columns=levels + ['deltaT'] + ['Dates'])
+  
   i = 0
   print(df_wind)
+  print(ff)
   for f in ff:
     print(f)
-    df = pd.read_csv(f, index_col=0)    
+    df = pd.read_csv(f[0], index_col=0)    
 
     # Loop throught the soundings
     while dt <= date_f:
