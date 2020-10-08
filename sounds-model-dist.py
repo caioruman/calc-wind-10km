@@ -79,6 +79,10 @@ def main():
       df_tmp_pos = df_tmp.query("deltaT > 0")
       df_tmp_neg = df_tmp.query("deltaT < 0")
 
+      print(df_tmp.head(), df_wind.head())
+
+      print(df_tmp_pos.head(), df_tmp_neg.head())
+
       df_wind_pos = df_wind_pos.drop(columns=['deltaT', 'Dates'])
       df_wind_neg = df_wind_neg.drop(columns=['deltaT', 'Dates'])
 
@@ -145,36 +149,69 @@ def readDataSoundings(folder, name, months, datai, dataf):
 
         if not df_aux.empty:
 
+          #if np.isnan(df_aux['TEMP']).any():
+          #  print(df_aux['HGHT'])
+          #  print(df_aux['TEMP'])
+          #  print(df_aux['HGHT'].values[0])
+          #  print(df['HGHT'] - df['HGHT'].values[0] + 10)
           # subtracting the first height level from the other levels
-          df_aux['HGHT'] = df['HGHT'] - df['HGHT'].values[0] + 10
           # removing indices where height > 600
-          ind = df_aux[df_aux.HGHT > 600].index
+          ind = df_aux[df_aux.HGHT > 1000].index
           df_aux = df_aux.drop(ind)
 
-          #print(df_aux)
-          if np.isnan(df_aux['TEMP'].values[:10]).any() or np.isnan(df_aux['HGHT'].values[:10]).any():
-            print(df_aux['TEMP'].values[:10])
-            print(df_aux['HGHT'].values[:10])
-            print(dt)
+          ind = df_aux[df_aux.HGHT <= 0].index
+          df_aux = df_aux.drop(ind)
+
+          df_aux = df_aux.dropna()
+
+          if (df_aux.empty):
             dt = dt + timedelta(hours=12)
+            print('emtpy df')
+            continue
+            
+
+          #print(df_aux['HGHT'].values)
+          new_height = df_aux['HGHT'] - df_aux['HGHT'].values[0] + 10
+          #print(new_height.values)
+
+          #print(df_aux)
+          #if np.isnan(df_aux['TEMP'].values[:10]).any() or np.isnan(new_height).any():
+            #print(df_aux['TEMP'].values[:10])
+            #print(new_height)
+            #print(dt)
+          #  dt = dt + timedelta(hours=12)
+            #sys.exit()
+         #   print('NaN found')
+          #  print(df_aux['TEMP'].values[:10])
+           # print(new_height.values)
+            #continue
+
+          if len(df_aux['TEMP']) < 4:
+            dt = dt + timedelta(hours=12)
+            print('Less than 4 items')
             continue
 
           try:
-            aux_tmp = interpolateData(df_aux['TEMP'], levels, df_aux['HGHT'])
-            aux_wind = interpolateData(df_aux['SKNT'], levels, df_aux['HGHT'])/1.944
+            aux_tmp = interpolateData(df_aux['TEMP'], levels, new_height.values) + 273.15
+            aux_wind = interpolateData(df_aux['SKNT'], levels, new_height.values)/1.944
           except:
             dt = dt + timedelta(hours=12)
+            print('error')
             continue
 
+#          print(aux_tmp)
           aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
         
-          df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt] 
+          df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt]
+          #df2 = pd.DataFrame(aux_wind.tolist() + [aux_inv] + [dt], columns=levels + ['deltaT'] + ['Dates'])
+          #print(aux_wind.tolist() + [aux_inv] + [dt])
+          #pd.concat([df_wind, df2])
           df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]        
           # next steps:
           # Do a try() catch() statement to catch errors and jump to the next date
 
         dt = dt + timedelta(hours=12)
-        i += 1      
+        i += 1     
 
   return df_wind, df_tmp
 
