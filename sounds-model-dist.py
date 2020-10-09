@@ -92,8 +92,8 @@ def main():
       # Clustering analysis on the above data. Divide it by the deltaT column      
       # Columns of the dataframe: [300,275,250,225,200,175,150,125,100,75,50,25,10, deltaT, Dates]
       # Positive means there is an temperature inversion (SH-). The use of neg and pos here is confusing
-      df_tmp_0_n, df_wind_0_n, df_tmp_1_n, df_wind_1_n, centroids_N, profileT_N, histT_N, hist_N, perc_N, numb_N, labels_N = kmeans_probability(df_wind_neg, df_tmp_neg)
-      df_tmp_0_p, df_wind_0_p, df_tmp_1_p, df_wind_1_p, centroids_P, profileT_P, histT_P, hist_P, perc_P, numb_P, labels_P = kmeans_probability(df_wind_pos, df_tmp_pos)
+      df_tmp_0_n, df_wind_0_n, df_tmp_1_n, df_wind_1_n, centroids_N, profileT_N, histT_N, hist_N, perc_N, numb_N, labels_N, deltaT_N, hist_deltaT_N = kmeans_probability(df_wind_neg, df_tmp_neg)
+      df_tmp_0_p, df_wind_0_p, df_tmp_1_p, df_wind_1_p, centroids_P, profileT_P, histT_P, hist_P, perc_P, numb_P, labels_P, deltaT_P, hist_deltaT_P = kmeans_probability(df_wind_pos, df_tmp_pos)
 
       # plot just to see the results
 
@@ -105,6 +105,11 @@ def main():
       cent, histo, perc, inv, numb = create_lists_preplot(profileT_N, profileT_P, histT_N, histT_P, perc_N, perc_P, numb_N, numb_P)
 
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb)
+
+      # Plotting deltaT
+      cent, histo, perc, inv, numb = create_lists_preplot(deltaT_N, deltaT_P, hist_deltaT_N, hist_deltaT_P, perc_N, perc_P, numb_N, numb_P)
+
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, True)
 
       # Read the model data
       # stuff here
@@ -122,11 +127,11 @@ def readDataSoundings(folder, name, months, datai, dataf):
   #ff = np.sort(glob('{0}/{1}/soundings_*_????.csv'.format(folder, name)))
   #ff = [glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, x)) for x in range(datai,dataf+1)]
 
-  # model levels
-  #new_levels = [240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 11, 8, 6, 4, 2, 1]
+  # model levels plus extra levels higher up
+  levels = [500, 450, 400, 350, 325, 300, 280, 260, 240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 11, 8, 6, 4, 2, 1]
 
   # sounding levels. The vertical resolution isnt good. The linear interpolation will be strange
-  levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
+  #levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
 
   df_wind = pd.DataFrame(columns=levels + ['deltaT'] + ['Dates'])
   df_tmp = pd.DataFrame(columns=levels + ['deltaT'] + ['Dates'])
@@ -339,8 +344,14 @@ def kmeans_probability(df, df_tmp):
   df_tmp_0 = df_tmp[labels,:]
   df_tmp_1 = df_tmp[~labels,:]
 
+  df_deltat_0 = df_tmp_0 - df_tmp_0[:,0]
+  df_deltat_1 = df_tmp_1 - df_tmp_1[:,0]
+
   profileT_0 = np.mean(df_tmp_0, axis=0)
   profileT_1 = np.mean(df_tmp_1, axis=0)
+
+  profileDeltaT_0 = np.mean(df_deltat_0, axis=0)
+  profileDeltaT_1 = np.mean(df_deltat_1, axis=0)
 
   aux_grid = np.linspace(223.15,293.15,80)
   #print()
@@ -349,6 +360,9 @@ def kmeans_probability(df, df_tmp):
 
   histT_0 = calc_kerneldensity(df_tmp_0, aux_grid)
   histT_1 = calc_kerneldensity(df_tmp_1, aux_grid) 
+
+  histDeltaT_0 = calc_kerneldensity(df_deltat_0, aux_grid)
+  histDeltaT_1 = calc_kerneldensity(df_deltat_1, aux_grid) 
 
   # Getting the probability distribution. Bins of 0.5 m/s
  # hist_0 = calc_histogram(df_0)
@@ -368,7 +382,7 @@ def kmeans_probability(df, df_tmp):
   perc = [df_0.shape[0]*100/df_a.shape[0], df_1.shape[0]*100/df_a.shape[0]]
   numb = [df_0.shape[0], df_1.shape[0]]
 
-  return df_tmp_0, df_0, df_tmp_1, df_1, centroids, [profileT_0, profileT_1], [histT_0, histT_1], [hist_0, hist_1], perc, numb, labels
+  return df_tmp_0, df_0, df_tmp_1, df_1, centroids, [profileT_0, profileT_1], [histT_0, histT_1], [hist_0, hist_1], perc, numb, labels, [profileDeltaT_0, profileDeltaT_1], [histDeltaT_0, histDeltaT_1]
 
 def calc_kerneldensity(df, aux_grid):
   hist_aux = []
@@ -395,7 +409,7 @@ def calc_histogram(df, irange=0, frange=40.25):
 
   return np.asarray(hist_l)
 
-def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period, numb, wind=False):
+def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period, numb, wind=False, deltaT=False):
 
   y = levels
   #x = np.arange(0,40,1)  
@@ -405,7 +419,12 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     vmax=40
     var = 'wind'
     lvl = np.arange(0,22,3)
-    
+  elif delta:
+    x = np.linspace(-15,15,80)
+    vmin=-15
+    vmax=15
+    var = 'deltaT'
+    lvl = np.arange(0,13,2)
   else:
     # for temperature
     #x = np.arange(223.15,293.15,1)
