@@ -431,7 +431,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     vmax=40
     var = 'wind'
     lvl = np.arange(0,22,3)
-  elif delta:
+  elif deltaT:
     x = np.linspace(-15,15,80)
     vmin=-15
     vmax=15
