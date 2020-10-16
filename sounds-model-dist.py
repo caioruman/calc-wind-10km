@@ -365,7 +365,7 @@ def kmeans_probability(df, df_tmp):
     df_deltat_0[:,i] = df_tmp_0[:,i] - df_tmp_0[:,0]
 
   for i in range(df_tmp_0.shape[1]-1, -1, -1):
-    df_deltat_1[:,i] = df_tmp_1 - df_tmp_1[:,0]  
+    df_deltat_1[:,i] = df_tmp_1[:,i] - df_tmp_1[:,0]  
 
   profileT_0 = np.mean(df_tmp_0, axis=0)
   profileT_1 = np.mean(df_tmp_1, axis=0)
