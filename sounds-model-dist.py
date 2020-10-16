@@ -142,9 +142,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
   
   i = 0  
   for y in range(datai, dataf+1):
-    f = glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, y))
-    print(f)
-    print('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, y))
+    f = glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, y))    
     df = pd.read_csv(f[0], index_col=0)
 
     for m in months:
@@ -459,7 +457,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
 
   X, Y= np.meshgrid(x, y)
    
-  v = np.arange(vmin, vmax+1, 2) 
+  #v = np.arange(vmin, vmax+1, 2) 
   fig = plt.figure(figsize=[28,16])
 
   for k, letter in zip(range(0,4), ['a', 'b', 'c', 'd']):
@@ -480,6 +478,9 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     if wind:
       plt.xlim(0,25)
       plt.xticks(np.arange(0,25,5), fontsize=20)
+    elif deltaT:
+      plt.xlim(-10,10)
+      plt.xticks(np.arange(-10,11,2), fontsize=20)
     else:
       plt.xticks(np.arange(225,291,5), fontsize=20)
     
