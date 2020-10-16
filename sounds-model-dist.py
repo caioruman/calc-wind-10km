@@ -200,13 +200,13 @@ def readDataSoundings(folder, name, months, datai, dataf):
             print('Less than 4 items')
             continue
 
-          try:
-            aux_tmp = interpolateData(df_aux['TEMP'], levels, new_height.values) + 273.15
-            aux_wind = interpolateData(df_aux['SKNT'], levels, new_height.values)/1.944
-          except:
-            dt = dt + timedelta(hours=12)
-            print('error')
-            continue
+          #try:
+          aux_tmp = interpolateData(df_aux['TEMP'], levels, new_height.values) + 273.15
+          aux_wind = interpolateData(df_aux['SKNT'], levels, new_height.values)/1.944
+          #except:
+          #  dt = dt + timedelta(hours=12)
+          #  print('error')
+          #  continue
 
           #aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
           aux_inv = aux_wind[14] - aux_wind[0] # Around ~90m
@@ -356,8 +356,14 @@ def kmeans_probability(df, df_tmp):
   df_tmp_0 = df_tmp[labels,:]
   df_tmp_1 = df_tmp[~labels,:]
 
-  df_deltat_0 = df_tmp_0 - df_tmp_0[:,0]
-  df_deltat_1 = df_tmp_1 - df_tmp_1[:,0]
+  df_deltat_0 = df_tmp_0.copy()
+  df_deltat_1 = df_tmp_1.copy()
+  
+  for i in range(df_tmp_0.shape[1]-1, -1, -1):
+    df_deltat_0[:,i] = df_tmp_0[:,i] - df_tmp_0[:,0]
+
+  for i in range(df_tmp_0.shape[1]-1, -1, -1):
+    df_deltat_1[:,i] = df_tmp_1 - df_tmp_1[:,0]  
 
   profileT_0 = np.mean(df_tmp_0, axis=0)
   profileT_1 = np.mean(df_tmp_1, axis=0)
