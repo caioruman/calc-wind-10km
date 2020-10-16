@@ -143,6 +143,8 @@ def readDataSoundings(folder, name, months, datai, dataf):
   i = 0  
   for y in range(datai, dataf+1):
     f = glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, y))
+    print(f)
+    print('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, y))
     df = pd.read_csv(f[0], index_col=0)
 
     for m in months:
