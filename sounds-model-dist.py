@@ -73,41 +73,45 @@ def main():
 
       df_wind, df_tmp = readDataSoundings(sfolder, name_s, smonths, datai, dataf)
 
-      df_wind_pos = df_wind.query("deltaT > 0")
-      df_wind_neg = df_wind.query("deltaT < 0")
+      df_wind_inv = df_wind.query("deltaT > 0")
+      df_wind_noInv = df_wind.query("deltaT < 0")
 
-      df_tmp_pos = df_tmp.query("deltaT > 0")
-      df_tmp_neg = df_tmp.query("deltaT < 0")
+      df_tmp_inv = df_tmp.query("deltaT > 0")
+      df_tmp_noInv = df_tmp.query("deltaT < 0")
 
-      print(df_tmp.head(), df_wind.head())
+      #print(df_tmp.head(), df_wind.head())
 
-      print(df_tmp_pos.head(), df_tmp_neg.head())
+      #print(df_tmp_pos.head(), df_tmp_neg.head())
 
-      df_wind_pos = df_wind_pos.drop(columns=['deltaT', 'Dates'])
-      df_wind_neg = df_wind_neg.drop(columns=['deltaT', 'Dates'])
+      df_wind_inv = df_wind_inv.drop(columns=['deltaT', 'Dates'])
+      df_wind_noInv = df_wind_noInv.drop(columns=['deltaT', 'Dates'])
 
-      df_tmp_pos = df_tmp_pos.drop(columns=['deltaT', 'Dates'])
-      df_tmp_neg = df_tmp_neg.drop(columns=['deltaT', 'Dates'])
+      df_tmp_inv = df_tmp_inv.drop(columns=['deltaT', 'Dates'])
+      df_tmp_noInv = df_tmp_noInv.drop(columns=['deltaT', 'Dates'])
 
       # Clustering analysis on the above data. Divide it by the deltaT column      
       # Columns of the dataframe: [300,275,250,225,200,175,150,125,100,75,50,25,10, deltaT, Dates]
       # Positive means there is an temperature inversion (SH-). The use of neg and pos here is confusing
-      df_tmp_0_n, df_wind_0_n, df_tmp_1_n, df_wind_1_n, centroids_N, profileT_N, histT_N, hist_N, perc_N, numb_N, labels_N, deltaT_N, hist_deltaT_N = kmeans_probability(df_wind_neg, df_tmp_neg)
-      df_tmp_0_p, df_wind_0_p, df_tmp_1_p, df_wind_1_p, centroids_P, profileT_P, histT_P, hist_P, perc_P, numb_P, labels_P, deltaT_P, hist_deltaT_P = kmeans_probability(df_wind_pos, df_tmp_pos)
+      df_tmp_0_noInv, df_wind_0_noInv, df_tmp_1_noInv, df_wind_1_noInv, centroids_NoInv, profileT_NoInv, histT_NoInv, hist_NoInv, perc_NoInv, numb_NoInv, labels_NoInv, deltaT_NoInv, hist_deltaT_NoInv = kmeans_probability(df_wind_noInv, df_tmp_noInv)
+      df_tmp_0_inv, df_wind_0_inv, df_tmp_1_inv, df_wind_1_inv, centroids_inv, profileT_inv, histT_inv, hist_inv, perc_inv, numb_inv, labels_inv, deltaT_inv, hist_deltaT_inv = kmeans_probability(df_wind_inv, df_tmp_inv)
 
       # plot just to see the results
 
       levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
-      cent, histo, perc, inv, numb = create_lists_preplot(centroids_N, centroids_P, hist_N, hist_P, perc_N, perc_P, numb_N, numb_P)
+      levels = [500, 450, 400, 350, 325, 300, 280, 260, 240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 10]
+
+      # Change the create_lists to sort the profile in another way.
+      # 1st possibility: compare the wind between the surface and at higher levels. High wind = Shear driven or WSBL
+      cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv, centroids_inv, hist_NoInv, hist_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
 
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True)
-
-      cent, histo, perc, inv, numb = create_lists_preplot(profileT_N, profileT_P, histT_N, histT_P, perc_N, perc_P, numb_N, numb_P)
+      
+      cent, histo, perc, inv, numb = create_lists_preplot(profileT_NoInv, profileT_inv, histT_NoInv, histT_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
 
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb)
 
       # Plotting deltaT
-      cent, histo, perc, inv, numb = create_lists_preplot(deltaT_N, deltaT_P, hist_deltaT_N, hist_deltaT_P, perc_N, perc_P, numb_N, numb_P)
+      cent, histo, perc, inv, numb = create_lists_preplot(deltaT_NoInv, deltaT_inv, hist_deltaT_NoInv, hist_deltaT_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
 
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, True)
 
@@ -128,7 +132,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
   #ff = [glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, x)) for x in range(datai,dataf+1)]
 
   # model levels plus extra levels higher up
-  levels = [500, 450, 400, 350, 325, 300, 280, 260, 240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 11, 8, 6, 4, 2, 1]
+  levels = [500, 450, 400, 350, 325, 300, 280, 260, 240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 10]
 
   # sounding levels. The vertical resolution isnt good. The linear interpolation will be strange
   #levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
@@ -204,8 +208,8 @@ def readDataSoundings(folder, name, months, datai, dataf):
             print('error')
             continue
 
-#          print(aux_tmp)
-          aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
+          #aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
+          aux_inv = aux_wind[14] - aux_wind[0] # Around ~90m
         
           df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt]
           #df2 = pd.DataFrame(aux_wind.tolist() + [aux_inv] + [dt], columns=levels + ['deltaT'] + ['Dates'])
@@ -232,56 +236,64 @@ def interpolateData(data, new_levels, height):
 
   return data_interp
 
-def create_lists_preplot(centroids_n, centroids_p, histo_n, histo_p, perc_n, perc_p, numb_n, numb_p):
+def create_lists_preplot(centroids_noInv, centroids_inv, histo_noInv, histo_inv, perc_noInv, perc_inv, numb_noInv, numb_inv, windp_noInv, windp_inv):
+  #profileT_NoInv, profileT_inv, histT_NoInv, histT_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
   cent = []
   histo = []
   perc = []
   shf = []
   numb = []
 
-  if (perc_n[0] > perc_n[1]):
+  aux_noInv_case1 = windp_noInv[0][-5] - windp_noInv[0][0]
+  aux_noInv_case2 = windp_noInv[1][-5] - windp_noInv[1][0]
+  aux_Inv_case1 = windp_inv[-5] - windp_inv[0]
+  aux_Inv_case2 = windp_inv[-5] - windp_inv[0]
+
+  # The no inversion case will always come first
+  # I'm assuming that the wind shear is greater for the WSBL and Shear driven PBL
+  if (aux_noInv_case1 > aux_noInv_case2):
     k = 0
     j = 1
   else:
     k = 1
     j = 0
 
-  cent.append(centroids_n[k])
-  cent.append(centroids_n[j])
+  cent.append(centroids_noInv[k])
+  cent.append(centroids_noInv[j])
 
-  histo.append(histo_n[k])
-  histo.append(histo_n[j])
+  histo.append(histo_noInv[k])
+  histo.append(histo_noInv[j])
 
-  perc.append(perc_n[k])
-  perc.append(perc_n[j])
+  perc.append(perc_noInv[k])
+  perc.append(perc_noInv[j])
 
-  shf.append('deltaT positive')
-  shf.append('deltaT positive')      
+  shf.append('No Inversion')
+  shf.append('No Inversion')      
 
-  numb.append(numb_n[k])
-  numb.append(numb_n[j])
+  numb.append(numb_noInv[k])
+  numb.append(numb_noInv[j])
 
-  if (perc_p[0] > perc_p[1]):
+  if (aux_Inv_case1 > aux_Inv_case2):
     k = 0
     j = 1
   else:
     k = 1
     j = 0
 
-  cent.append(centroids_p[k])
-  cent.append(centroids_p[j])
+  cent.append(centroids_inv[k])
+  cent.append(centroids_inv[j])
 
-  histo.append(histo_p[k])
-  histo.append(histo_p[j])
+  histo.append(histo_inv[k])
+  histo.append(histo_inv[j])
 
-  perc.append(perc_p[k])
-  perc.append(perc_p[j])
+  perc.append(perc_inv[k])
+  perc.append(perc_inv[j])
 
-  shf.append('deltaT negative')
-  shf.append('deltaT negative')
+  shf.append('With Inversions')
+  shf.append('With Inversions')
 
-  numb.append(numb_p[k])
-  numb.append(numb_p[j])
+  numb.append(numb_inv[k])
+  numb.append(numb_inv[j])
 
   return cent, histo, perc, shf, numb
 
