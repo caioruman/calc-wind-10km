@@ -200,13 +200,15 @@ def readDataSoundings(folder, name, months, datai, dataf):
             print('Less than 4 items')
             continue
 
-          #try:
-          aux_tmp = interpolateData(df_aux['TEMP'], levels, new_height.values) + 273.15
-          aux_wind = interpolateData(df_aux['SKNT'], levels, new_height.values)/1.944
-          #except:
-          #  dt = dt + timedelta(hours=12)
-          #  print('error')
-          #  continue
+          try:
+            aux_tmp = interpolateData(df_aux['TEMP'], levels, new_height.values) + 273.15
+            aux_wind = interpolateData(df_aux['SKNT'], levels, new_height.values)/1.944
+          except ValueError as err:
+            dt = dt + timedelta(hours=12)
+            print(err)
+            print(df_aux['SKNT'])
+            print(df_aux['HGHT'])            
+            continue
 
           #aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
           aux_inv = aux_wind[14] - aux_wind[0] # Around ~90m
