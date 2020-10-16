@@ -248,8 +248,8 @@ def create_lists_preplot(centroids_noInv, centroids_inv, histo_noInv, histo_inv,
 
   aux_noInv_case1 = windp_noInv[0][-5] - windp_noInv[0][0]
   aux_noInv_case2 = windp_noInv[1][-5] - windp_noInv[1][0]
-  aux_Inv_case1 = windp_inv[-5] - windp_inv[0]
-  aux_Inv_case2 = windp_inv[-5] - windp_inv[0]
+  aux_Inv_case1 = windp_inv[0][-5] - windp_inv[0][0]
+  aux_Inv_case2 = windp_inv[1][-5] - windp_inv[1][0]
 
   # The no inversion case will always come first
   # I'm assuming that the wind shear is greater for the WSBL and Shear driven PBL
