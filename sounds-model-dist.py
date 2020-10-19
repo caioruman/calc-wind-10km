@@ -470,6 +470,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     vmax=15
     var = 'deltaT'
     lvl = np.arange(0,13,2)
+    print(np.max(histo[0]))
   else:
     # for temperature
     #x = np.arange(223.15,293.15,1)
