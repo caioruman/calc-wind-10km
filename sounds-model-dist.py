@@ -79,6 +79,12 @@ def main():
       df_tmp_inv = df_tmp.query("deltaT > 0")
       df_tmp_noInv = df_tmp.query("deltaT < 0")
 
+      print(df_wind_inv.head())
+      print(df_wind_noinv.head())
+      print(df_tmp_inv.head())
+      print(df_tmp_noInv.head())
+      sys.exit()
+
       #print(df_tmp.head(), df_wind.head())
 
       #print(df_tmp_pos.head(), df_tmp_neg.head())
