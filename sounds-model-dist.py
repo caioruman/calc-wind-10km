@@ -154,8 +154,7 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   
   test = pd.merge(df_inv, df_noInv, on=['Dates'], how='inner')
   
-  print(test.head())  
-  print(test.shape())
+  print(test.head())    
   print(df_inv.head())
   print(df_inv.shape)
   print(df_dates_inv.head())
