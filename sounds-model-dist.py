@@ -406,7 +406,7 @@ def kmeans_probability(df, df_tmp):
   histT_0 = calc_kerneldensity(df_tmp_0, aux_grid)
   histT_1 = calc_kerneldensity(df_tmp_1, aux_grid) 
 
-  aux_grid = np.linspace(-15,15,60)
+  aux_grid = np.linspace(-15,15,80)
 
   histDeltaT_0 = calc_kerneldensity(df_deltat_0, aux_grid)
   histDeltaT_1 = calc_kerneldensity(df_deltat_1, aux_grid) 
@@ -471,7 +471,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     vmin=-15
     vmax=15
     var = 'deltaT'
-    lvl = np.arange(0,13,2)
+    lvl = np.arange(0,22,3)
     print(np.max(histo[0]))
   else:
     # for temperature
@@ -481,7 +481,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     vmin=223
     vmax=293
     var = 'tmp'  
-    lvl = np.arange(0,13,2)
+    lvl = np.arange(0,22,3)
 
   X, Y= np.meshgrid(x, y)
    
@@ -507,7 +507,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
       plt.xlim(0,25)
       plt.xticks(np.arange(0,25,5), fontsize=20)
     elif deltaT:
-      plt.xlim(-10,10)
+      plt.xlim(-15,10)
       plt.xticks(np.arange(-10,11,2), fontsize=20)
     else:
       plt.xticks(np.arange(225,291,5), fontsize=20)
