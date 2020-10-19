@@ -80,7 +80,7 @@ def main():
       df_tmp_noInv = df_tmp.query("deltaT < 0")
 
       print(df_wind_inv.head())
-      print(df_wind_noinv.head())
+      print(df_wind_noInv.head())
       print(df_tmp_inv.head())
       print(df_tmp_noInv.head())
       sys.exit()
