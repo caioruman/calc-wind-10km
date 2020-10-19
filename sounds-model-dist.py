@@ -79,8 +79,8 @@ def main():
       df_tmp_inv = df_tmp.query("deltaT > 0")
       df_tmp_noInv = df_tmp.query("deltaT < 0")
 
-      df_dates_inv = df_tmp_inv['Dates'].copy()
-      df_dates_noInv = df_tmp_noInv['Dates'].copy()
+      df_dates_inv = pd.DataFrame(df_tmp_inv['Dates'].copy())
+      df_dates_noInv = pd.DataFrame(df_tmp_noInv['Dates'].copy())
 
       df_wind_inv = df_wind_inv.drop(columns=['deltaT', 'Dates'])
       df_wind_noInv = df_wind_noInv.drop(columns=['deltaT', 'Dates'])
@@ -200,7 +200,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
   for y in range(datai, dataf+1):
     f = glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, y))    
     df = pd.read_csv(f[0], index_col=0)
-
+    print(y)
     for m in months:
       
       dt = datetime(year_i, m, 1, 0, 0)
@@ -208,6 +208,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
 
       # Loop throught the soundings
       while dt < date_f:
+        print(dt)
 
         #print(i)
         df_aux = df.query("Year == {0} and Month == {1} and Day == {2} and Hour == {3}".format(dt.year, dt.month, dt.day, dt.hour))
