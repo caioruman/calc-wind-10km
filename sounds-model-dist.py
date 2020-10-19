@@ -366,42 +366,6 @@ def create_lists_preplot(centroids_noInv, centroids_inv, histo_noInv, histo_inv,
 
   return cent, histo, perc, shf, numb
 
-def readDataCSV(aux_path, name, smonths, var, UV=False, T2M=False, pho=False):
-
-  aux_p = []
-  aux_n = []
-
-  for year in range(datai, dataf+1):
-    for month in smonths:
-      file_path_pos = "{0}/{1}/{2}{3:02d}/{1}_{2}{3:02d}*_{4}_pos.csv".format(aux_path, name, year, month, var)
-      file_path_neg = "{0}/{1}/{2}{3:02d}/{1}_{2}{3:02d}*_{4}_neg.csv".format(aux_path, name, year, month, var)
-
-      aux_p.extend(glob(file_path_pos))
-      aux_n.extend(glob(file_path_neg))
-    
-  df_p = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_p)), ignore_index=True)
-  df_n = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_n)), ignore_index=True)
-
-  df_n = df_n.drop(columns=['Dates'])
-  df_p = df_p.drop(columns=['Dates'])
-
-  if T2M:
-    df_n = df_n.drop(columns=['T2M'])
-    df_p = df_p.drop(columns=['T2M'])
-
-    df_n = df_n.drop(columns=['Tskin'])
-    df_p = df_p.drop(columns=['Tskin'])
-
-  if UV:
-    df_n = df_n.drop(columns=['UV10'])
-    df_p = df_p.drop(columns=['UV10'])  
-
-  if pho:
-    df_n = df_n.drop(columns=['Pho'])
-    df_p = df_p.drop(columns=['Pho'])
-
-  return df_p, df_n
-
 def kmeans_probability(df, df_tmp):
   '''
     For now fixed at 2 clusters
