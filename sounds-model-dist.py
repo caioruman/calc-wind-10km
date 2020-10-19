@@ -79,13 +79,13 @@ def main():
       df_tmp_inv = df_tmp.query("deltaT > 0")
       df_tmp_noInv = df_tmp.query("deltaT < 0")
 
-      print(df_wind_inv.head())
-      print(df_wind_noInv.head())
-      print(df_tmp_inv.head())
-      print(df_tmp_inv.shape)
-      print(df_tmp_noInv.head())
-      print(df_tmp_noInv.shape)
-      sys.exit()
+      #print(df_wind_inv.head())
+      #print(df_wind_noInv.head())
+      #print(df_tmp_inv.head())
+      #print(df_tmp_inv.shape)
+      #print(df_tmp_noInv.head())
+      #print(df_tmp_noInv.shape)
+#      sys.exit()
 
       #print(df_tmp.head(), df_wind.head())
 
@@ -103,6 +103,14 @@ def main():
       df_tmp_0_noInv, df_wind_0_noInv, df_tmp_1_noInv, df_wind_1_noInv, centroids_NoInv, profileT_NoInv, histT_NoInv, hist_NoInv, perc_NoInv, numb_NoInv, labels_NoInv, deltaT_NoInv, hist_deltaT_NoInv = kmeans_probability(df_wind_noInv, df_tmp_noInv)
       df_tmp_0_inv, df_wind_0_inv, df_tmp_1_inv, df_wind_1_inv, centroids_inv, profileT_inv, histT_inv, hist_inv, perc_inv, numb_inv, labels_inv, deltaT_inv, hist_deltaT_inv = kmeans_probability(df_wind_inv, df_tmp_inv)
 
+      #print("no inv")
+      #print(numb_NoInv)
+
+      #print("inv")
+      #print(numb_inv)
+
+      
+
       # plot just to see the results
 
       levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
@@ -112,6 +120,8 @@ def main():
       # 1st possibility: compare the wind between the surface and at higher levels. High wind = Shear driven or WSBL
       cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv, centroids_inv, hist_NoInv, hist_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
 
+      #print(numb)
+      #sys.exit()
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True)
       
       cent, histo, perc, inv, numb = create_lists_preplot(profileT_NoInv, profileT_inv, histT_NoInv, histT_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
@@ -219,8 +229,13 @@ def readDataSoundings(folder, name, months, datai, dataf):
             continue
 
           #aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
-          print(aux_inv)
+#          print(aux_inv)
           aux_inv = aux_tmp[-14] - aux_tmp[-1] # Around ~90m
+          #print(levels)
+          #print(aux_tmp)
+          #print(df_aux['HGHT'])
+          #print(df_aux['TEMP']+273.15)
+          #sys.exit()
           #aux_inv = aux_tmp[19] - aux_tmp[0] # Around ~200m          
         
           df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt]
