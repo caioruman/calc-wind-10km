@@ -82,6 +82,8 @@ def main():
       df_dates_inv = pd.DataFrame(df_tmp_inv['Dates'].copy())
       df_dates_noInv = pd.DataFrame(df_tmp_noInv['Dates'].copy())
 
+      print(df_dates_inv)
+
       df_wind_inv = df_wind_inv.drop(columns=['deltaT', 'Dates'])
       df_wind_noInv = df_wind_noInv.drop(columns=['deltaT', 'Dates'])
 
@@ -200,10 +202,10 @@ def readDataSoundings(folder, name, months, datai, dataf):
   for y in range(datai, dataf+1):
     f = glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, y))    
     df = pd.read_csv(f[0], index_col=0)
-    print(y)
+    print(y, f)
     for m in months:
       
-      dt = datetime(year_i, m, 1, 0, 0)
+      dt = datetime(y, m, 1, 0, 0)
       date_f = dt + relativedelta(months=+1)      
 
       # Loop throught the soundings
@@ -291,7 +293,8 @@ def readDataSoundings(folder, name, months, datai, dataf):
         dt = dt + timedelta(hours=12)
         i += 1     
 
-  print("{0} soundings discarded due to being empty or not having enough data".format(e))
+  print("{0} soundings discarded due to being empty or not having enough data, from a total of {1}".format(e, i))
+
   return df_wind, df_tmp
 
 def interpolateData(data, new_levels, height):
