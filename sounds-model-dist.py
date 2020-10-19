@@ -148,6 +148,7 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   df_inv = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_inv)), ignore_index=True)
   df_noInv = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_noInv)), ignore_index=True)
 
+  print(df_inv)
   df_inv.where(df_inv['Dates']==df_dates_inv['Dates'])  
   df_inv.dropna()
   df_noInv.where(df_noInv['Dates']==df_dates_noInv['Dates'])
