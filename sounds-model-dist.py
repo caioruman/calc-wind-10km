@@ -81,6 +81,8 @@ def main():
 
       df_dates_inv = pd.DataFrame(df_tmp_inv['Dates'].copy())
       df_dates_noInv = pd.DataFrame(df_tmp_noInv['Dates'].copy())
+      #df_dates_inv.rename(columns={"Dates": "Dates1"})
+      #df_dates_noInv.rename(columns={"Dates": "Dates1"})
 
       print(df_dates_inv)
 
@@ -149,11 +151,10 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   df_noInv = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_noInv)), ignore_index=True)
 
   print(df_inv)
-  df_inv.where(df_inv['Dates']==df_dates_inv['Dates'])  
-  df_inv.dropna()
-  df_noInv.where(df_noInv['Dates']==df_dates_noInv['Dates'])
-  df_noInv.dropna()
-
+  
+  df_inv.merge(df_dates_inv)  
+  df_noInv.merge(df_dates_noInv)
+  
   print(df_inv.head())
   print(df_inv.shape)
   print(df_dates_inv.head())
