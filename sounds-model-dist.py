@@ -51,7 +51,7 @@ def main():
   exp80 = 'cPanCan_011deg_ERA5_80lvl_rerun'
 
   folder_90 = "{0}/{1}/CSV_{1}".format(mfolder, exp90)
-  folder_80 = "{0}/{1}/CSV_{1}".format(mfolder, exp80)
+  folder_80 = "{0}/{1}/CSV_{1}".format(mfolder, exp80)  
   
   season = [['DJF', (12, 1, 2)], ['JJA', (6, 7, 8)]]  
 
@@ -79,37 +79,20 @@ def main():
       df_tmp_inv = df_tmp.query("deltaT > 0")
       df_tmp_noInv = df_tmp.query("deltaT < 0")
 
-      #print(df_wind_inv.head())
-      #print(df_wind_noInv.head())
-      #print(df_tmp_inv.head())
-      #print(df_tmp_inv.shape)
-      #print(df_tmp_noInv.head())
-      #print(df_tmp_noInv.shape)
-#      sys.exit()
-
-      #print(df_tmp.head(), df_wind.head())
-
-      #print(df_tmp_pos.head(), df_tmp_neg.head())
+      df_dates_inv = df_tmp_inv['Dates'].copy()
+      df_dates_noInv = df_tmp_noInv['Dates'].copy()
 
       df_wind_inv = df_wind_inv.drop(columns=['deltaT', 'Dates'])
       df_wind_noInv = df_wind_noInv.drop(columns=['deltaT', 'Dates'])
 
       df_tmp_inv = df_tmp_inv.drop(columns=['deltaT', 'Dates'])
-      df_tmp_noInv = df_tmp_noInv.drop(columns=['deltaT', 'Dates'])
+      df_tmp_noInv = df_tmp_noInv.drop(columns=['deltaT', 'Dates'])      
 
       # Clustering analysis on the above data. Divide it by the deltaT column      
       # Columns of the dataframe: [300,275,250,225,200,175,150,125,100,75,50,25,10, deltaT, Dates]
       # Positive means there is an temperature inversion (SH-). The use of neg and pos here is confusing
       df_tmp_0_noInv, df_wind_0_noInv, df_tmp_1_noInv, df_wind_1_noInv, centroids_NoInv, profileT_NoInv, histT_NoInv, hist_NoInv, perc_NoInv, numb_NoInv, labels_NoInv, deltaT_NoInv, hist_deltaT_NoInv = kmeans_probability(df_wind_noInv, df_tmp_noInv)
       df_tmp_0_inv, df_wind_0_inv, df_tmp_1_inv, df_wind_1_inv, centroids_inv, profileT_inv, histT_inv, hist_inv, perc_inv, numb_inv, labels_inv, deltaT_inv, hist_deltaT_inv = kmeans_probability(df_wind_inv, df_tmp_inv)
-
-      #print("no inv")
-      #print(numb_NoInv)
-
-      #print("inv")
-      #print(numb_inv)
-
-      
 
       # plot just to see the results
 
@@ -134,13 +117,67 @@ def main():
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, True)
 
       # Read the model data
-      # stuff here
+      # Return only the data that match the soundings      
+      wind_inv_90, wind_noInv_90 = readDataCSV(folder_90, name, smonths, 'wind', df_dates_inv, df_dates_noInv, True)
+      temp_inv_90, temp_noInv_90 = readDataCSV(folder_90, name, smonths, 'temp', df_dates_inv, df_dates_noInv, False, True)
+
+      wind_inv_80, wind_noInv_80 = readDataCSV(folder_80, name, smonths, 'wind', df_dates_inv, df_dates_noInv, True)
+      temp_inv_80, temp_noInv_80 = readDataCSV(folder_80, name, smonths, 'temp', df_dates_inv, df_dates_noInv, False, True)
+
 
       # apply the labels from the soundings to the model data
       # stuff here
 
       # 
 
+def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=False, T2M=False, pho=False):
+
+  aux_inv = []
+  aux_noInv = []
+
+  for year in range(datai, dataf+1):
+    for month in smonths:
+      file_path_pos = "{0}/{1}/{2}{3:02d}/{1}_{2}{3:02d}*_{4}_pos.csv".format(aux_path, name, year, month, var)
+      file_path_neg = "{0}/{1}/{2}{3:02d}/{1}_{2}{3:02d}*_{4}_neg.csv".format(aux_path, name, year, month, var)
+
+      aux_inv.extend(glob(file_path_pos))
+      aux_noInv.extend(glob(file_path_neg))
+    
+  df_inv = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_inv)), ignore_index=True)
+  df_noInv = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_noInv)), ignore_index=True)
+
+  df_inv.where(df_inv.Dates==df_dates_inv.Dates)  
+  df_inv.dropna()
+  df_noInv.where(df_noInv.Dates==df_dates_noInv.Dates)
+  df_noInv.dropna()
+
+  print(df_inv.head())
+  print(df_inv.shape)
+  print(df_dates_inv.head())
+  print(df_dates_inv.shape)
+  sys.exit()
+
+  if T2M:
+    df_noInv = df_noInv.drop(columns=['T2M'])
+    df_inv = df_inv.drop(columns=['T2M'])
+
+    df_noInv = df_noInv.drop(columns=['Tskin'])
+    df_inv = df_inv.drop(columns=['Tskin'])
+
+  if UV:
+    df_noInv = df_noInv.drop(columns=['UV10'])
+    df_inv = df_inv.drop(columns=['UV10'])  
+
+  if pho:
+    df_noInv = df_noInv.drop(columns=['Pho'])
+    df_inv = df_inv.drop(columns=['Pho'])
+
+
+
+  df_noInv = df_noInv.drop(columns=['Dates'])
+  df_inv = df_inv.drop(columns=['Dates'])
+
+  return df_inv, df_noInv
 
 def readDataSoundings(folder, name, months, datai, dataf):
   
@@ -158,7 +195,8 @@ def readDataSoundings(folder, name, months, datai, dataf):
   df_wind = pd.DataFrame(columns=levels + ['deltaT'] + ['Dates'])
   df_tmp = pd.DataFrame(columns=levels + ['deltaT'] + ['Dates'])
   
-  i = 0  
+  i = 0
+  e = 0  
   for y in range(datai, dataf+1):
     f = glob('{0}/{1}/soundings_*_{2}.csv'.format(folder, name, y))    
     df = pd.read_csv(f[0], index_col=0)
@@ -194,6 +232,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
           if (df_aux.empty):
             dt = dt + timedelta(hours=12)
             print('emtpy df')
+            e += 1
             continue
             
 
@@ -216,6 +255,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
           if len(df_aux['TEMP']) < 4:
             dt = dt + timedelta(hours=12)
             print('Less than 4 items')
+            e += 1
             continue
 
           try:
@@ -224,8 +264,9 @@ def readDataSoundings(folder, name, months, datai, dataf):
           except ValueError as err:
             dt = dt + timedelta(hours=12)
             print(err)
-            print(df_aux['SKNT'])
-            print(df_aux['HGHT'])            
+            e += 1
+            #print(df_aux['SKNT'])
+            #print(df_aux['HGHT'])            
             continue
 
           #aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
@@ -249,6 +290,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
         dt = dt + timedelta(hours=12)
         i += 1     
 
+  print("{0} soundings discarded due to being empty or not having enough data".format(e))
   return df_wind, df_tmp
 
 def interpolateData(data, new_levels, height):
@@ -512,7 +554,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     else:
       plt.xticks(np.arange(225,291,5), fontsize=20)
     
-    plt.ylim(0,280)
+    plt.ylim(0,400)
     
     plt.yticks(np.arange(0,280,10), fontsize=20)    
     plt.title('({0}) {1:2.2f} % {2} | #: {3}'.format(letter, perc[k], shf[k], numb[k]), fontsize='20')
