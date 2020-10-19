@@ -406,6 +406,8 @@ def kmeans_probability(df, df_tmp):
   histT_0 = calc_kerneldensity(df_tmp_0, aux_grid)
   histT_1 = calc_kerneldensity(df_tmp_1, aux_grid) 
 
+  aux_grid = np.linspace(-15,15,60)
+
   histDeltaT_0 = calc_kerneldensity(df_deltat_0, aux_grid)
   histDeltaT_1 = calc_kerneldensity(df_deltat_1, aux_grid) 
 
