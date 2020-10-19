@@ -219,7 +219,8 @@ def readDataSoundings(folder, name, months, datai, dataf):
             continue
 
           #aux_inv = df_aux['TEMP'].values[1] - df_aux['TEMP'].values[0]
-          aux_inv = aux_tmp[14] - aux_tmp[0] # Around ~90m
+          print(aux_inv)
+          aux_inv = aux_tmp[-14] - aux_tmp[-1] # Around ~90m
           #aux_inv = aux_tmp[19] - aux_tmp[0] # Around ~200m          
         
           df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt]
