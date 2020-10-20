@@ -82,8 +82,8 @@ def main():
       df_dates_inv = pd.DataFrame(df_tmp_inv['Dates'].copy())
       df_dates_noInv = pd.DataFrame(df_tmp_noInv['Dates'].copy())
 
-      df_dates_noInv['Dates'] = pd.to_datetime(df_dates_noInv['Dates'], format='%Y%m%d %H:%M', errors='ignore')
-      df_dates_inv['Dates'] = pd.to_datetime(df_dates_inv['Dates'], format='%Y%m%d %H:%M', errors='ignore')
+      df_dates_noInv['Dates'] = pd.to_datetime(df_dates_noInv['Dates'])#, format='%Y%m%d %H:%M', errors='ignore')
+      df_dates_inv['Dates'] = pd.to_datetime(df_dates_inv['Dates'])#, format='%Y%m%d %H:%M', errors='ignore')
       #df_dates_inv.rename(columns={"Dates": "Dates1"})
       #df_dates_noInv.rename(columns={"Dates": "Dates1"})
 
@@ -153,33 +153,19 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   df_inv = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_inv)), ignore_index=True)
   df_noInv = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_noInv)), ignore_index=True)
 
-  print(df_inv.head())
-  #aux = df_inv['Dates'].astype(str)
-  aux = df_inv['Dates'].datetime.strftime('%Y-%m-%d %H:%M:%S')
-  print(aux)
-  #aux = pd.to_datetime(aux, format='%Y-%m-%d %H:%M:%S')
-  #print(aux)
-  sys.exit()
-  #df_inv.drop(columns=['Dates'])  
-  #df_inv['Dates'] = pd.to_datetime(aux)
+  #Merging the two
+  df_full = pd.concat([df_inv, df_noInv])
 
-  #aux = df_noInv['Dates'].dt.strftime('%Y-%m-%d %H:%M:%S')
-  #df_noInv['Dates'] = pd.to_datetime(aux)
+  #print(df_inv.head())
+  # Getting rid of the microseconds part.
+  df_full['Dates'] = df_full['Dates'].astype('datetime64[s]')
+#  df_noInv['Dates'] = df_noInv['Dates'].astype('datetime64[s]')
   
-  test = pd.merge(df_inv, df_dates_inv, on=['Dates'], how='inner')
+  # Getting the model values that correspond to the soundings
+  df_inv = pd.merge(df_full, df_dates_inv, on=['Dates'], how='inner')
+  df_noInv = pd.merge(df_full, df_dates_noInv, on=['Dates'], how='inner')
   # Fix the merbe above. The Dates are slightly different, so it might not be working because of that: 1980-01-02 23:00:00.000006 vs 1980-01-02 23:00:00
   
-  print("test df")
-  print(test.head())    
-  print(test.shape)
-  print("inv df")
-  print(df_inv.head())
-  print(df_inv.shape)
-  print('inv dates df')
-  print(df_dates_inv.head())
-  print(df_dates_inv.shape)
-  sys.exit()
-
   if T2M:
     df_noInv = df_noInv.drop(columns=['T2M'])
     df_inv = df_inv.drop(columns=['T2M'])
@@ -194,7 +180,6 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   if pho:
     df_noInv = df_noInv.drop(columns=['Pho'])
     df_inv = df_inv.drop(columns=['Pho'])
-
 
 
   df_noInv = df_noInv.drop(columns=['Dates'])
