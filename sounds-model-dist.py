@@ -146,6 +146,15 @@ def main():
 
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, False, 'model_90')
 
+      levels = [int(x) for x in wind_inv_80.columns.values]
+      cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv80, centroids_inv80, hist_NoInv80, hist_inv80, perc_NoInv80, perc_inv80, numb_NoInv80, numb_inv80, centroids_NoInv80, centroids_inv80)
+      
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True, False, 'model_80')
+      
+      cent, histo, perc, inv, numb = create_lists_preplot(profileT_NoInv80, profileT_inv80, histT_NoInv80, histT_inv80, perc_NoInv80, perc_inv80, numb_NoInv80, numb_inv80, centroids_NoInv80, centroids_inv80)
+
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, False, 'model_80')
+
       # apply the labels from the soundings to the model data
       # 
       
