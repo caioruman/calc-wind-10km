@@ -160,9 +160,13 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   test = pd.merge(df_inv, df_dates_inv, on=['Dates'], how='inner')
   # Fix the merbe above. The Dates are slightly different, so it might not be working because of that: 1980-01-02 23:00:00.000006 vs 1980-01-02 23:00:00
   
+  print("test df")
   print(test.head())    
+  print(test.shape())
+  print("inv df")
   print(df_inv.head())
   print(df_inv.shape)
+  print('inv dates df')
   print(df_dates_inv.head())
   print(df_dates_inv.shape)
   sys.exit()
@@ -218,7 +222,7 @@ def readDataSoundings(folder, name, months, datai, dataf):
 
       # Loop throught the soundings
       while dt < date_f:
-        print(dt)
+        #print(dt)
 
         #print(i)
         df_aux = df.query("Year == {0} and Month == {1} and Day == {2} and Hour == {3}".format(dt.year, dt.month, dt.day, dt.hour))
