@@ -136,7 +136,8 @@ def main():
       df_tmp_0_noInv80, df_wind_0_noInv80, df_tmp_1_noInv80, df_wind_1_noInv80, centroids_NoInv80, profileT_NoInv80, histT_NoInv80, hist_NoInv80, perc_NoInv80, numb_NoInv80, labels_NoInv80, deltaT_NoInv80, hist_deltaT_NoInv80 = kmeans_probability(wind_noInv_80, temp_noInv_80)
       df_tmp_0_inv80, df_wind_0_inv80, df_tmp_1_inv80, df_wind_1_inv80, centroids_inv80, profileT_inv80, histT_inv80, hist_inv80, perc_inv80, numb_inv80, labels_inv80, deltaT_inv80, hist_deltaT_inv80 = kmeans_probability(wind_inv_80, temp_inv_80)
 
-      levels = wind_inv_90.columns
+      levels = [int(x) for x in wind_inv_90.columns.values]
+      print(levels)
       cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv90, centroids_inv90, hist_NoInv90, hist_inv90, perc_NoInv90, perc_inv90, numb_NoInv90, numb_inv90, centroids_NoInv90, centroids_inv90)
       
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True, False, 'model_90')
@@ -543,7 +544,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     else:
       plt.xticks(np.arange(225,291,5), fontsize=20)
     
-    plt.ylim(0,400)
+    plt.ylim(0,240)
     
     plt.yticks(np.arange(0,280,10), fontsize=20)    
     plt.title('({0}) {1:2.2f} % {2} | #: {3}'.format(letter, perc[k], shf[k], numb[k]), fontsize='20')
