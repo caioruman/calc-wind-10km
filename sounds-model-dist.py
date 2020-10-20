@@ -154,8 +154,8 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   df_noInv = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_noInv)), ignore_index=True)
 
   print(df_inv.head())
-  aux = df_inv['Dates'].astype(str)
-  aux = pd.Series(df_inv['Dates']).dt.strftime('%Y-%m-%d %H:%M:%S')
+  #aux = df_inv['Dates'].astype(str)
+  aux = df_inv['Dates'].datetime.strftime('%Y-%m-%d %H:%M:%S')
   print(aux)
   #aux = pd.to_datetime(aux, format='%Y-%m-%d %H:%M:%S')
   #print(aux)
@@ -303,11 +303,11 @@ def readDataSoundings(folder, name, months, datai, dataf):
           #sys.exit()
           #aux_inv = aux_tmp[19] - aux_tmp[0] # Around ~200m          
         
-          df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt]
+          df_wind.loc[i] = aux_wind.tolist() + [aux_inv] + [dt.strftime('%Y-%m-%d %H:%M:%S')]
           #df2 = pd.DataFrame(aux_wind.tolist() + [aux_inv] + [dt], columns=levels + ['deltaT'] + ['Dates'])
           #print(aux_wind.tolist() + [aux_inv] + [dt])
           #pd.concat([df_wind, df2])
-          df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt]        
+          df_tmp.loc[i] = aux_tmp.tolist() + [aux_inv] + [dt.strftime('%Y-%m-%d %H:%M:%S')]
           # next steps:
           # Do a try() catch() statement to catch errors and jump to the next date
 
