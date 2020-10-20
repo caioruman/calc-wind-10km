@@ -96,8 +96,7 @@ def main():
       df_tmp_noInv = df_tmp_noInv.drop(columns=['deltaT', 'Dates'])      
 
       # Clustering analysis on the above data. Divide it by the deltaT column      
-      # Columns of the dataframe: [300,275,250,225,200,175,150,125,100,75,50,25,10, deltaT, Dates]
-      # Positive means there is an temperature inversion (SH-). The use of neg and pos here is confusing
+      # Columns of the dataframe: [300,275,250,225,200,175,150,125,100,75,50,25,10, deltaT, Dates]      
       df_tmp_0_noInv, df_wind_0_noInv, df_tmp_1_noInv, df_wind_1_noInv, centroids_NoInv, profileT_NoInv, histT_NoInv, hist_NoInv, perc_NoInv, numb_NoInv, labels_NoInv, deltaT_NoInv, hist_deltaT_NoInv = kmeans_probability(df_wind_noInv, df_tmp_noInv)
       df_tmp_0_inv, df_wind_0_inv, df_tmp_1_inv, df_wind_1_inv, centroids_inv, profileT_inv, histT_inv, hist_inv, perc_inv, numb_inv, labels_inv, deltaT_inv, hist_deltaT_inv = kmeans_probability(df_wind_inv, df_tmp_inv)
 
@@ -109,9 +108,7 @@ def main():
       # Change the create_lists to sort the profile in another way.
       # 1st possibility: compare the wind between the surface and at higher levels. High wind = Shear driven or WSBL
       cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv, centroids_inv, hist_NoInv, hist_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
-
-      #print(numb)
-      #sys.exit()
+      
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True)
       
       cent, histo, perc, inv, numb = create_lists_preplot(profileT_NoInv, profileT_inv, histT_NoInv, histT_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
@@ -131,10 +128,28 @@ def main():
       wind_inv_80, wind_noInv_80 = readDataCSV(folder_80, name, smonths, 'wind', df_dates_inv, df_dates_noInv, True)
       temp_inv_80, temp_noInv_80 = readDataCSV(folder_80, name, smonths, 'temp', df_dates_inv, df_dates_noInv, False, True)
 
+      # Plot the model data
+
+      df_tmp_0_noInv90, df_wind_0_noInv90, df_tmp_1_noInv90, df_wind_1_noInv90, centroids_NoInv90, profileT_NoInv90, histT_NoInv90, hist_NoInv90, perc_NoInv90, numb_NoInv90, labels_NoInv90, deltaT_NoInv90, hist_deltaT_NoInv90 = kmeans_probability(wind_noInv_90, temp_noInv_90)
+      df_tmp_0_inv90, df_wind_0_inv90, df_tmp_1_inv90, df_wind_1_inv90, centroids_inv90, profileT_inv90, histT_inv90, hist_inv90, perc_inv90, numb_inv90, labels_inv90, deltaT_inv90, hist_deltaT_inv90 = kmeans_probability(wind_inv_90, temp_inv_90)
+
+      df_tmp_0_noInv80, df_wind_0_noInv80, df_tmp_1_noInv80, df_wind_1_noInv80, centroids_NoInv80, profileT_NoInv80, histT_NoInv80, hist_NoInv80, perc_NoInv80, numb_NoInv80, labels_NoInv80, deltaT_NoInv80, hist_deltaT_NoInv80 = kmeans_probability(wind_noInv_80, temp_noInv_80)
+      df_tmp_0_inv80, df_wind_0_inv80, df_tmp_1_inv80, df_wind_1_inv80, centroids_inv80, profileT_inv80, histT_inv80, hist_inv80, perc_inv80, numb_inv80, labels_inv80, deltaT_inv80, hist_deltaT_inv80 = kmeans_probability(wind_inv_80, temp_inv_80)
+
+      levels = wind_inv_90.columns
+      cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv90, centroids_inv90, hist_NoInv90, hist_inv90, perc_NoInv90, perc_inv90, numb_NoInv90, numb_inv90, centroids_NoInv90, centroids_inv90)
+      
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True, False, 'model_90')
+      
+      cent, histo, perc, inv, numb = create_lists_preplot(profileT_NoInv90, profileT_inv90, histT_NoInv90, histT_inv90, perc_NoInv90, perc_inv90, numb_NoInv90, numb_inv90, centroids_NoInv90, centroids_inv90)
+
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, False, 'model_90')
 
       # apply the labels from the soundings to the model data
-      # stuff here
+      # 
+      
 
+      
       # 
 
 def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=False, T2M=False, pho=False):
@@ -472,7 +487,7 @@ def calc_histogram(df, irange=0, frange=40.25):
 
   return np.asarray(hist_l)
 
-def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period, numb, wind=False, deltaT=False):
+def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period, numb, wind=False, deltaT=False, cname=''):
 
   y = levels
   #x = np.arange(0,40,1)  
@@ -533,7 +548,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     plt.yticks(np.arange(0,280,10), fontsize=20)    
     plt.title('({0}) {1:2.2f} % {2} | #: {3}'.format(letter, perc[k], shf[k], numb[k]), fontsize='20')
   plt.tight_layout()
-  plt.savefig('Images/{0}_{1}{2}_{3}_{4}.png'.format(name, datai, dataf, period, var), pad_inches=0.0, bbox_inches='tight')
+  plt.savefig('Images/{0}_{1}{2}_{3}_{4}_{5}.png'.format(name, datai, dataf, period, var, cname), pad_inches=0.0, bbox_inches='tight')
   plt.close()
   
 
