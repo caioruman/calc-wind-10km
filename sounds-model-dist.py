@@ -82,8 +82,8 @@ def main():
       df_dates_inv = pd.DataFrame(df_tmp_inv['Dates'].copy())
       df_dates_noInv = pd.DataFrame(df_tmp_noInv['Dates'].copy())
 
-      df_dates_noInv['Dates'] = pd.to_datetime(df_dates_noInv['Dates'], format='%Y%m%d %H:%M', errors='ignore'))
-      df_dates_inv['Dates'] = pd.to_datetime(df_dates_inv['Dates'], format='%Y%m%d %H:%M', errors='ignore'))
+      df_dates_noInv['Dates'] = pd.to_datetime(df_dates_noInv['Dates'], format='%Y%m%d %H:%M', errors='ignore')
+      df_dates_inv['Dates'] = pd.to_datetime(df_dates_inv['Dates'], format='%Y%m%d %H:%M', errors='ignore')
       #df_dates_inv.rename(columns={"Dates": "Dates1"})
       #df_dates_noInv.rename(columns={"Dates": "Dates1"})
 
