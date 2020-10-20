@@ -162,7 +162,7 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   
   print("test df")
   print(test.head())    
-  print(test.shape())
+  print(test.shape)
   print("inv df")
   print(df_inv.head())
   print(df_inv.shape)
