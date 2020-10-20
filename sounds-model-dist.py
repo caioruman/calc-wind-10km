@@ -154,8 +154,12 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   df_noInv = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_noInv)), ignore_index=True)
 
   print(df_inv.head())
-  df_inv['Dates'] = pd.to_datetime(df_inv['Dates'].astype(str), format='%Y%m%d %H:%M')
-  df_noInv['Dates'] = pd.to_datetime(df_noInv['Dates'].astype(str), format='%Y%m%d %H:%M')
+  aux = df_inv['Dates'].dt.strftime('%Y-%m-%d %H:%M:%S')
+  df_inv.drop(columns=['Dates'])  
+  df_inv['Dates'] = pd.to_datetime(aux)
+
+  aux = df_noInv['Dates'].dt.strftime('%Y-%m-%d %H:%M:%S')
+  df_noInv['Dates'] = pd.to_datetime(aux)
   
   test = pd.merge(df_inv, df_dates_inv, on=['Dates'], how='inner')
   # Fix the merbe above. The Dates are slightly different, so it might not be working because of that: 1980-01-02 23:00:00.000006 vs 1980-01-02 23:00:00
