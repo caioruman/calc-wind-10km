@@ -156,6 +156,8 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   print(df_inv.head())
   aux = df_inv['Dates'].astype(str)
   print(aux)
+  aux = pd.to_datetime(aux, format='%Y-%m-%d %H:%M:%S')
+  print(aux)
   sys.exit()
   #df_inv.drop(columns=['Dates'])  
   #df_inv['Dates'] = pd.to_datetime(aux)
