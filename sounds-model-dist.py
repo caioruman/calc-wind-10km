@@ -81,6 +81,9 @@ def main():
 
       df_dates_inv = pd.DataFrame(df_tmp_inv['Dates'].copy())
       df_dates_noInv = pd.DataFrame(df_tmp_noInv['Dates'].copy())
+
+      df_dates_noInv['Dates'] = pd.to_datetime(df_dates_noInv['Dates'], format='%Y%m%d %H:%M', errors='ignore'))
+      df_dates_inv['Dates'] = pd.to_datetime(df_dates_inv['Dates'], format='%Y%m%d %H:%M', errors='ignore'))
       #df_dates_inv.rename(columns={"Dates": "Dates1"})
       #df_dates_noInv.rename(columns={"Dates": "Dates1"})
 
@@ -151,8 +154,11 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
   df_noInv = pd.concat((pd.read_csv(f, index_col=0) for f in np.sort(aux_noInv)), ignore_index=True)
 
   print(df_inv)
+  df_inv['Dates'] = pd.to_datetime(df_inv['Dates'], format='%Y%m%d %H:%M', errors='ignore')
+  df_noInv['Dates'] = pd.to_datetime(df_noInv['Dates'], format='%Y%m%d %H:%M', errors='ignore')  
   
-  test = pd.merge(df_inv, df_noInv, on=['Dates'], how='inner')
+  test = pd.merge(df_inv, df_dates_inv, on=['Dates'], how='inner')
+  # Fix the merbe above. The Dates are slightly different, so it might not be working because of that: 1980-01-02 23:00:00.000006 vs 1980-01-02 23:00:00
   
   print(test.head())    
   print(df_inv.head())
