@@ -315,12 +315,6 @@ def readDataSoundings(folder, name, months, datai, dataf):
           new_height = df_aux['HGHT'] - df_aux['HGHT'].values[0] + 10
           #print(new_height.values)
 
-          if (df_aux['HGHT'].values[1] - df_aux['HGHT'].values[0]) > 60:
-            dt = dt + timedelta(hours=12)
-            print('Jump higher than 60m in the 2')
-            e += 1
-            continue
-
           #print(df_aux)
           #if np.isnan(df_aux['TEMP'].values[:10]).any() or np.isnan(new_height).any():
             #print(df_aux['TEMP'].values[:10])
@@ -338,6 +332,12 @@ def readDataSoundings(folder, name, months, datai, dataf):
             print('Less than 4 items')
             e += 1
             continue
+
+          if (df_aux['HGHT'].values[1] - df_aux['HGHT'].values[0]) > 60:
+            dt = dt + timedelta(hours=12)
+            print('Jump higher than 60m in the 2')
+            e += 1
+            continue          
 
           try:
             aux_tmp = interpolateData(df_aux['TEMP'], levels, new_height.values) + 273.15
