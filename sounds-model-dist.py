@@ -95,8 +95,28 @@ def main():
       df_tmp_inv = df_tmp_inv.drop(columns=['deltaT', 'Dates'])
       df_tmp_noInv = df_tmp_noInv.drop(columns=['deltaT', 'Dates'])      
 
-      # Clustering analysis on the above data. Divide it by the deltaT column      
-      # Columns of the dataframe: [300,275,250,225,200,175,150,125,100,75,50,25,10, deltaT, Dates]      
+      # Read the model data
+      # Return only the data that match the soundings      
+      wind_inv_90, wind_noInv_90 = readDataCSV(folder_90, name, smonths, 'wind', df_dates_inv, df_dates_noInv, False, True)
+      temp_inv_90, temp_noInv_90 = readDataCSV(folder_90, name, smonths, 'temp', df_dates_inv, df_dates_noInv, True, False, True)
+
+      wind_inv_80, wind_noInv_80 = readDataCSV(folder_80, name, smonths, 'wind', df_dates_inv, df_dates_noInv, True, True)
+      temp_inv_80, temp_noInv_80 = readDataCSV(folder_80, name, smonths, 'temp', df_dates_inv, df_dates_noInv, True, False, True)
+
+      df_dates_inv_model = wind_inv_90['Dates'].copy()
+      df_dates_noInv_model = wind_noInv_90['Dates'].copy()
+
+      wind_inv_90 = wind_inv_90.drop(columns=['Dates'])
+      wind_noInv_90 = wind_noInv_90.drop(columns=['Dates'])
+
+      # 1) Use the merge thing to make the soundings dataframe and the model dataframe the same size (right now the model dataframe is 2 items short)      
+      df_wind_inv = pd.merge(df_wind_inv, df_dates_inv_model, on=['Dates'], how='inner')
+      df_tmp_inv = pd.merge(df_tmp_inv, df_dates_inv_model, on=['Dates'], how='inner')
+
+      df_tmp_noInv = pd.merge(df_tmp_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
+      df_wind_noInv = pd.merge(df_wind_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
+      
+      # Clustering analysis on the soundings data. Divided by the deltaT column            
       df_tmp_0_noInv, df_wind_0_noInv, df_tmp_1_noInv, df_wind_1_noInv, centroids_NoInv, profileT_NoInv, histT_NoInv, hist_NoInv, perc_NoInv, numb_NoInv, labels_NoInv, deltaT_NoInv, hist_deltaT_NoInv = kmeans_probability(df_wind_noInv, df_tmp_noInv)
       df_tmp_0_inv, df_wind_0_inv, df_tmp_1_inv, df_wind_1_inv, centroids_inv, profileT_inv, histT_inv, hist_inv, perc_inv, numb_inv, labels_inv, deltaT_inv, hist_deltaT_inv = kmeans_probability(df_wind_inv, df_tmp_inv)
 
@@ -119,25 +139,17 @@ def main():
       cent, histo, perc, inv, numb = create_lists_preplot(deltaT_NoInv, deltaT_inv, hist_deltaT_NoInv, hist_deltaT_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
 
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, True)
-
-      # Read the model data
-      # Return only the data that match the soundings      
-      wind_inv_90, wind_noInv_90 = readDataCSV(folder_90, name, smonths, 'wind', df_dates_inv, df_dates_noInv, True)
-      temp_inv_90, temp_noInv_90 = readDataCSV(folder_90, name, smonths, 'temp', df_dates_inv, df_dates_noInv, False, True)
-
-      wind_inv_80, wind_noInv_80 = readDataCSV(folder_80, name, smonths, 'wind', df_dates_inv, df_dates_noInv, True)
-      temp_inv_80, temp_noInv_80 = readDataCSV(folder_80, name, smonths, 'temp', df_dates_inv, df_dates_noInv, False, True)
-
-      # Plot the model data
-
+      
+      # Clustering analysis on the model data
       df_tmp_0_noInv90, df_wind_0_noInv90, df_tmp_1_noInv90, df_wind_1_noInv90, centroids_NoInv90, profileT_NoInv90, histT_NoInv90, hist_NoInv90, perc_NoInv90, numb_NoInv90, labels_NoInv90, deltaT_NoInv90, hist_deltaT_NoInv90 = kmeans_probability(wind_noInv_90, temp_noInv_90)
       df_tmp_0_inv90, df_wind_0_inv90, df_tmp_1_inv90, df_wind_1_inv90, centroids_inv90, profileT_inv90, histT_inv90, hist_inv90, perc_inv90, numb_inv90, labels_inv90, deltaT_inv90, hist_deltaT_inv90 = kmeans_probability(wind_inv_90, temp_inv_90)
 
       df_tmp_0_noInv80, df_wind_0_noInv80, df_tmp_1_noInv80, df_wind_1_noInv80, centroids_NoInv80, profileT_NoInv80, histT_NoInv80, hist_NoInv80, perc_NoInv80, numb_NoInv80, labels_NoInv80, deltaT_NoInv80, hist_deltaT_NoInv80 = kmeans_probability(wind_noInv_80, temp_noInv_80)
       df_tmp_0_inv80, df_wind_0_inv80, df_tmp_1_inv80, df_wind_1_inv80, centroids_inv80, profileT_inv80, histT_inv80, hist_inv80, perc_inv80, numb_inv80, labels_inv80, deltaT_inv80, hist_deltaT_inv80 = kmeans_probability(wind_inv_80, temp_inv_80)
 
+      # Plot the model data
       levels = [int(x) for x in wind_inv_90.columns.values]
-      print(levels)
+      #print(levels)
       cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv90, centroids_inv90, hist_NoInv90, hist_inv90, perc_NoInv90, perc_inv90, numb_NoInv90, numb_inv90, centroids_NoInv90, centroids_inv90)
       
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True, False, 'model_90')
@@ -155,14 +167,43 @@ def main():
 
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, False, 'model_80')
 
-      # apply the labels from the soundings to the model data
-      # 
+      # apply the labels from the soundings to the model data    
+      # 3) apply the labels on the model data      
+      df_tmp_0_noInv90, df_wind_0_noInv90, df_tmp_1_noInv90, df_wind_1_noInv90, centroids_NoInv90, profileT_NoInv90, histT_NoInv90, hist_NoInv90, perc_NoInv90, numb_NoInv90, deltaT_NoInv90, hist_deltaT_NoInv90 = kmeans_probability_label(wind_noInv_90, temp_noInv_90, labels_NoInv)
+      df_tmp_0_inv90, df_wind_0_inv90, df_tmp_1_inv90, df_wind_1_inv90, centroids_inv90, profileT_inv90, histT_inv90, hist_inv90, perc_inv90, numb_inv90, deltaT_inv90, hist_deltaT_inv90 = kmeans_probability_label(wind_inv_90, temp_inv_90, labels_inv)
+
+      df_tmp_0_noInv80, df_wind_0_noInv80, df_tmp_1_noInv80, df_wind_1_noInv80, centroids_NoInv80, profileT_NoInv80, histT_NoInv80, hist_NoInv80, perc_NoInv80, numb_NoInv80, deltaT_NoInv80, hist_deltaT_NoInv80 = kmeans_probability_label(wind_noInv_80, temp_noInv_80, labels_NoInv)
+      df_tmp_0_inv80, df_wind_0_inv80, df_tmp_1_inv80, df_wind_1_inv80, centroids_inv80, profileT_inv80, histT_inv80, hist_inv80, perc_inv80, numb_inv80, deltaT_inv80, hist_deltaT_inv80 = kmeans_probability_label(wind_inv_80, temp_inv_80, labels_inv)
+
+      # 4) Plot the model data with soundings labels
+
+      # plotting one at a time
+      levels = [int(x) for x in wind_inv_90.columns.values]
+      #print(levels)
+      cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv90, centroids_inv90, hist_NoInv90, hist_inv90, perc_NoInv90, perc_inv90, numb_NoInv90, numb_inv90, centroids_NoInv90, centroids_inv90)
+      
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True, False, 'model_90_soundings')
+      
+      cent, histo, perc, inv, numb = create_lists_preplot(profileT_NoInv90, profileT_inv90, histT_NoInv90, histT_inv90, perc_NoInv90, perc_inv90, numb_NoInv90, numb_inv90, centroids_NoInv90, centroids_inv90)
+
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, False, 'model_90_soundings')
+
+      levels = [int(x) for x in wind_inv_80.columns.values]
+      cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv80, centroids_inv80, hist_NoInv80, hist_inv80, perc_NoInv80, perc_inv80, numb_NoInv80, numb_inv80, centroids_NoInv80, centroids_inv80)
+      
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True, False, 'model_80_soundings')
+      
+      cent, histo, perc, inv, numb = create_lists_preplot(profileT_NoInv80, profileT_inv80, histT_NoInv80, histT_inv80, perc_NoInv80, perc_inv80, numb_NoInv80, numb_inv80, centroids_NoInv80, centroids_inv80)
+
+      plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, False, 'model_80_soundings')
+
+      # plotting all at once
       
 
       
       # 
 
-def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=False, T2M=False, pho=False):
+def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, dd=True, UV=False, T2M=False, pho=False):
 
   aux_inv = []
   aux_noInv = []
@@ -206,9 +247,9 @@ def readDataCSV(aux_path, name, smonths, var, df_dates_inv, df_dates_noInv, UV=F
     df_noInv = df_noInv.drop(columns=['Pho'])
     df_inv = df_inv.drop(columns=['Pho'])
 
-
-  df_noInv = df_noInv.drop(columns=['Dates'])
-  df_inv = df_inv.drop(columns=['Dates'])
+  if dd:
+    df_noInv = df_noInv.drop(columns=['Dates'])
+    df_inv = df_inv.drop(columns=['Dates'])
 
   return df_inv, df_noInv
 
@@ -273,6 +314,12 @@ def readDataSoundings(folder, name, months, datai, dataf):
           #print(df_aux['HGHT'].values)
           new_height = df_aux['HGHT'] - df_aux['HGHT'].values[0] + 10
           #print(new_height.values)
+
+          if (df_aux['HGHT'].values[1] - df_aux['HGHT'].values[0]) > 60:
+            dt = dt + timedelta(hours=12)
+            print('Jump higher than 60m in the 2')
+            e += 1
+            continue
 
           #print(df_aux)
           #if np.isnan(df_aux['TEMP'].values[:10]).any() or np.isnan(new_height).any():
@@ -401,6 +448,80 @@ def create_lists_preplot(centroids_noInv, centroids_inv, histo_noInv, histo_inv,
 
   return cent, histo, perc, shf, numb
 
+def kmeans_probability_label(df, df_tmp, labels):
+  '''
+    For now fixed at 2 clusters
+    returns: Array of the centroids, the two histograms and % of each group
+  '''
+  kmeans = KMeans(n_clusters=2, random_state=0).fit(df)
+        
+  # Getting the location of each group.
+  #pred = kmeans.predict(df)
+  #labels = np.equal(pred, 0)
+  #centroids = kmeans.cluster_centers_
+
+  # Converting to numpy array
+  df_a = np.array(df)
+  df_tmp = np.array(df_tmp)
+
+  # Dividing between the 2 clusters
+  df_0 = df_a[labels,:]
+  df_1 = df_a[~labels,:]
+
+  df_tmp_0 = df_tmp[labels,:]
+  df_tmp_1 = df_tmp[~labels,:]
+
+  df_deltat_0 = df_tmp_0.copy()
+  df_deltat_1 = df_tmp_1.copy()
+  
+  for i in range(df_tmp_0.shape[1]-1, -1, -1):
+    df_deltat_0[:,i] = df_tmp_0[:,i] - df_tmp_0[:,0]
+
+  for i in range(df_tmp_0.shape[1]-1, -1, -1):
+    df_deltat_1[:,i] = df_tmp_1[:,i] - df_tmp_1[:,0]  
+  
+  centroids_0 = np.mean(df_0, axis=0)
+  centroids_1 = np.mean(df_1, axis=0)
+
+  profileT_0 = np.mean(df_tmp_0, axis=0)
+  profileT_1 = np.mean(df_tmp_1, axis=0)
+
+  profileDeltaT_0 = np.mean(df_deltat_0, axis=0)
+  profileDeltaT_1 = np.mean(df_deltat_1, axis=0)
+
+  aux_grid = np.linspace(223.15,293.15,80)
+  #print()
+  #histT_0 = calc_histogram(df_tmp_0, 223.15, 293.15)
+  #histT_1 = calc_histogram(df_tmp_1, 223.15, 293.15)
+
+  histT_0 = calc_kerneldensity(df_tmp_0, aux_grid)
+  histT_1 = calc_kerneldensity(df_tmp_1, aux_grid) 
+
+  aux_grid = np.linspace(-15,15,80)
+
+  histDeltaT_0 = calc_kerneldensity(df_deltat_0, aux_grid)
+  histDeltaT_1 = calc_kerneldensity(df_deltat_1, aux_grid) 
+
+  # Getting the probability distribution. Bins of 0.5 m/s
+ # hist_0 = calc_histogram(df_0)
+ # hist_1 = calc_histogram(df_1)
+
+  # Getting the probability distribution. Kernel Density  
+  aux_grid = np.linspace(0,40,80)
+  hist_0 = calc_kerneldensity(df_0, aux_grid)
+  hist_1 = calc_kerneldensity(df_1, aux_grid)  
+
+  #plot_stuff(hist_0, centroids[0])
+  #plot_stuff(hist_1, centroids[1])
+  #sys.exit()
+
+  #centroids = kmeans.cluster_centers_, [hist_0, hist_1], [df_0.shape[0]*100/df_a.shape[0], df_1.shape[0]*100/df_a.shape[0]]
+
+  perc = [df_0.shape[0]*100/df_a.shape[0], df_1.shape[0]*100/df_a.shape[0]]
+  numb = [df_0.shape[0], df_1.shape[0]]
+
+  return df_tmp_0, df_0, df_tmp_1, df_1, [centroids_0, centroids_1], [profileT_0, profileT_1], [histT_0, histT_1], [hist_0, hist_1], perc, numb, [profileDeltaT_0, profileDeltaT_1], [histDeltaT_0, histDeltaT_1]
+
 def kmeans_probability(df, df_tmp):
   '''
     For now fixed at 2 clusters
@@ -420,6 +541,13 @@ def kmeans_probability(df, df_tmp):
   # Dividing between the 2 clusters
   df_0 = df_a[labels,:]
   df_1 = df_a[~labels,:]
+
+  aa = np.mean(df_0, axis=0)
+  bb = np.mean(df_1, axis=0)  
+
+  print(aa, bb)
+  print(centroids)
+  sys.exit()
 
   df_tmp_0 = df_tmp[labels,:]
   df_tmp_1 = df_tmp[~labels,:]
@@ -513,12 +641,12 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
     vmax=15
     var = 'deltaT'
     lvl = np.arange(0,22,3)
-    print(np.max(histo[0]))
+    #print(np.max(histo[0]))
   else:
     # for temperature
     #x = np.arange(223.15,293.15,1)
     x = np.linspace(223.15,293.15,80)
-    print(x.shape)
+    #print(x.shape)
     vmin=223
     vmax=293
     var = 'tmp'  
