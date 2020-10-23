@@ -114,8 +114,8 @@ def main():
       wind_noInv_90 = pd.merge(wind_noInv_90, df_dates_noInv_model80, on=['Dates'], how='inner')
       temp_noInv_90 = pd.merge(temp_noInv_90, df_dates_noInv_model80, on=['Dates'], how='inner')
 
-      print(wind_inv_90.shape, wind_inv_80.shape)
-      print(wind_noInv_90.shape, wind_noInv_80.shape)
+      print(wind_inv_90.shape, wind_inv_80.shape, df_dates_inv.shape)
+      print(wind_noInv_90.shape, wind_noInv_80.shape, df_dates_noInv.shape)
       sys.exit()
       #df_noInv = pd.merge(df_full, df_dates_noInv, on=['Dates'], how='inner')
 
