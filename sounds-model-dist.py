@@ -791,7 +791,7 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
 def plot_comparison(cent_soundings, levels_soundings, cent_model90, levels_model90, cent_model80, levels_model80, name, period, wind=False, deltaT=False, cname=''):
 #plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period, numb, wind=False, deltaT=False, cname=''):
 
-  y = levels
+  #y = levels
   #x = np.arange(0,40,1)  
   if wind:    
     vmin=0
