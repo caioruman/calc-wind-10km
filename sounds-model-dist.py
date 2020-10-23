@@ -107,6 +107,11 @@ def main():
       df_dates_inv_model80 = pd.DataFrame(wind_inv_80['Dates'])
       df_dates_noInv_model80 = pd.DataFrame(wind_noInv_80['Dates'])
 
+      aux = pd.merge(df_dates_inv_model, df_dates_inv_model80, on=['Dates'], how='inner')
+      print(aux)
+      sys.exit()
+      #df_noInv = pd.merge(df_full, df_dates_noInv, on=['Dates'], how='inner')
+
       #print(df_dates_inv_model)
       #print(wind_inv_80.shape)
       #print(df_dates_inv_model80)
