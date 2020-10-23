@@ -126,9 +126,7 @@ def main():
       df_tmp_noInv = pd.merge(df_tmp_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
 
       print(wind_inv_90.shape, wind_inv_80.shape, df_wind_inv.shape)
-      print(wind_noInv_90.shape, wind_noInv_80.shape, df_wind_noInv.shape)
-      #sys.exit()
-
+      print(wind_noInv_90.shape, wind_noInv_80.shape, df_wind_noInv.shape)      
 
       # Sorting the dataframes
       wind_inv_90 = wind_inv_90.sort_values(by=['Dates'])
@@ -145,8 +143,7 @@ def main():
       df_wind_noInv = df_wind_noInv.sort_values(by=['Dates'])
       df_tmp_inv = df_tmp_inv.sort_values(by=['Dates'])
       df_tmp_noInv = df_tmp_noInv.sort_values(by=['Dates'])
-
-      sys.exit()
+      
       #df_noInv = pd.merge(df_full, df_dates_noInv, on=['Dates'], how='inner')
 
       #print(df_dates_inv_model)
@@ -165,12 +162,19 @@ def main():
       wind_inv_80 = wind_inv_80.drop(columns=['Dates'])
       wind_noInv_80 = wind_noInv_80.drop(columns=['Dates'])
 
-      # 1) Use the merge thing to make the soundings dataframe and the model dataframe the same size (right now the model dataframe is 2 items short)      
-      df_wind_inv = pd.merge(df_wind_inv, df_dates_inv_model, on=['Dates'], how='inner')
-      df_tmp_inv = pd.merge(df_tmp_inv, df_dates_inv_model, on=['Dates'], how='inner')
+      temp_inv_90 = temp_inv_90.drop(columns=['Dates'])
+      temp_noInv_90 = temp_noInv_90.drop(columns=['Dates'])
 
-      df_tmp_noInv = pd.merge(df_tmp_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
-      df_wind_noInv = pd.merge(df_wind_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
+      temp_inv_80 = temp_inv_80.drop(columns=['Dates'])
+      temp_noInv_80 = temp_noInv_80.drop(columns=['Dates'])
+
+      # 1) Use the merge thing to make the soundings dataframe and the model dataframe the same size (right now the model dataframe is 2 items short)      
+      # Already did that above
+      #df_wind_inv = pd.merge(df_wind_inv, df_dates_inv_model, on=['Dates'], how='inner')
+      #df_tmp_inv = pd.merge(df_tmp_inv, df_dates_inv_model, on=['Dates'], how='inner')
+
+      #df_tmp_noInv = pd.merge(df_tmp_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
+      #df_wind_noInv = pd.merge(df_wind_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
 
       df_wind_inv = df_wind_inv.drop(columns=['deltaT', 'Dates'])
       df_wind_noInv = df_wind_noInv.drop(columns=['deltaT', 'Dates'])
