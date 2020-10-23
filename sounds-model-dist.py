@@ -98,21 +98,30 @@ def main():
       wind_inv_90, wind_noInv_90 = readDataCSV(folder_90, name, smonths, 'wind', df_dates_inv, df_dates_noInv, False, True)
       temp_inv_90, temp_noInv_90 = readDataCSV(folder_90, name, smonths, 'temp', df_dates_inv, df_dates_noInv, True, False, True)
 
-      wind_inv_80, wind_noInv_80 = readDataCSV(folder_80, name, smonths, 'wind', df_dates_inv, df_dates_noInv, True, True)
+      wind_inv_80, wind_noInv_80 = readDataCSV(folder_80, name, smonths, 'wind', df_dates_inv, df_dates_noInv, False, True)
       temp_inv_80, temp_noInv_80 = readDataCSV(folder_80, name, smonths, 'temp', df_dates_inv, df_dates_noInv, True, False, True)
 
       df_dates_inv_model = pd.DataFrame(wind_inv_90['Dates'])
       df_dates_noInv_model = pd.DataFrame(wind_noInv_90['Dates'])
 
-      print(df_dates_inv_model)
+      df_dates_inv_model80 = pd.DataFrame(wind_inv_80['Dates'])
+      df_dates_noInv_model80 = pd.DataFrame(wind_noInv_80['Dates'])
 
-      print(df_dates_inv_model.Dates)
+      #print(df_dates_inv_model)
+      #print(wind_inv_80.shape)
+      #print(df_dates_inv_model80)
+      
+      #sys.exit()
+      #print(df_dates_)
 
       #df_dates_inv_model['Dates'] = df_dates_inv_model['Dates'].astype('datetime64[s]')
       #df_dates_noInv_model['Dates'] = df_dates_noInv_model['Dates'].astype('datetime64[s]')
 
       wind_inv_90 = wind_inv_90.drop(columns=['Dates'])
       wind_noInv_90 = wind_noInv_90.drop(columns=['Dates'])
+
+      wind_inv_80 = wind_inv_80.drop(columns=['Dates'])
+      wind_noInv_80 = wind_noInv_80.drop(columns=['Dates'])
 
       # 1) Use the merge thing to make the soundings dataframe and the model dataframe the same size (right now the model dataframe is 2 items short)      
       df_wind_inv = pd.merge(df_wind_inv, df_dates_inv_model, on=['Dates'], how='inner')
