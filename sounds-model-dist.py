@@ -82,18 +82,16 @@ def main():
       df_dates_inv = pd.DataFrame(df_tmp_inv['Dates'].copy())
       df_dates_noInv = pd.DataFrame(df_tmp_noInv['Dates'].copy())
 
-      df_dates_noInv['Dates'] = pd.to_datetime(df_dates_noInv['Dates'])#, format='%Y%m%d %H:%M', errors='ignore')
-      df_dates_inv['Dates'] = pd.to_datetime(df_dates_inv['Dates'])#, format='%Y%m%d %H:%M', errors='ignore')
-      #df_dates_inv.rename(columns={"Dates": "Dates1"})
-      #df_dates_noInv.rename(columns={"Dates": "Dates1"})
+#      df_dates_noInv['Dates'] = pd.to_datetime(df_dates_noInv['Dates'])#, format='%Y%m%d %H:%M', errors='ignore')
+#      df_dates_inv['Dates'] = pd.to_datetime(df_dates_inv['Dates'])#, format='%Y%m%d %H:%M', errors='ignore')
 
-      print(df_dates_inv)
+#      print(df_dates_inv)
 
-      df_wind_inv = df_wind_inv.drop(columns=['deltaT', 'Dates'])
-      df_wind_noInv = df_wind_noInv.drop(columns=['deltaT', 'Dates'])
+#      df_wind_inv = df_wind_inv.drop(columns=['deltaT', 'Dates'])
+#      df_wind_noInv = df_wind_noInv.drop(columns=['deltaT', 'Dates'])
 
-      df_tmp_inv = df_tmp_inv.drop(columns=['deltaT', 'Dates'])
-      df_tmp_noInv = df_tmp_noInv.drop(columns=['deltaT', 'Dates'])      
+#      df_tmp_inv = df_tmp_inv.drop(columns=['deltaT', 'Dates'])
+#      df_tmp_noInv = df_tmp_noInv.drop(columns=['deltaT', 'Dates'])      
 
       # Read the model data
       # Return only the data that match the soundings      
@@ -103,8 +101,15 @@ def main():
       wind_inv_80, wind_noInv_80 = readDataCSV(folder_80, name, smonths, 'wind', df_dates_inv, df_dates_noInv, True, True)
       temp_inv_80, temp_noInv_80 = readDataCSV(folder_80, name, smonths, 'temp', df_dates_inv, df_dates_noInv, True, False, True)
 
-      df_dates_inv_model = wind_inv_90['Dates'].copy()
-      df_dates_noInv_model = wind_noInv_90['Dates'].copy()
+      df_dates_inv_model = pd.DataFrame(wind_inv_90['Dates'])
+      df_dates_noInv_model = pd.DataFrame(wind_noInv_90['Dates'])
+
+      print(df_dates_inv_model)
+
+      print(df_dates_inv_model.Dates)
+
+      #df_dates_inv_model['Dates'] = df_dates_inv_model['Dates'].astype('datetime64[s]')
+      #df_dates_noInv_model['Dates'] = df_dates_noInv_model['Dates'].astype('datetime64[s]')
 
       wind_inv_90 = wind_inv_90.drop(columns=['Dates'])
       wind_noInv_90 = wind_noInv_90.drop(columns=['Dates'])
@@ -115,6 +120,12 @@ def main():
 
       df_tmp_noInv = pd.merge(df_tmp_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
       df_wind_noInv = pd.merge(df_wind_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
+
+      df_wind_inv = df_wind_inv.drop(columns=['deltaT', 'Dates'])
+      df_wind_noInv = df_wind_noInv.drop(columns=['deltaT', 'Dates'])
+
+      df_tmp_inv = df_tmp_inv.drop(columns=['deltaT', 'Dates'])
+      df_tmp_noInv = df_tmp_noInv.drop(columns=['deltaT', 'Dates'])
       
       # Clustering analysis on the soundings data. Divided by the deltaT column            
       df_tmp_0_noInv, df_wind_0_noInv, df_tmp_1_noInv, df_wind_1_noInv, centroids_NoInv, profileT_NoInv, histT_NoInv, hist_NoInv, perc_NoInv, numb_NoInv, labels_NoInv, deltaT_NoInv, hist_deltaT_NoInv = kmeans_probability(df_wind_noInv, df_tmp_noInv)
@@ -333,9 +344,9 @@ def readDataSoundings(folder, name, months, datai, dataf):
             e += 1
             continue
 
-          if (df_aux['HGHT'].values[1] - df_aux['HGHT'].values[0]) > 60:
+          if (df_aux['HGHT'].values[1] - df_aux['HGHT'].values[0]) > 80:
             dt = dt + timedelta(hours=12)
-            print('Jump higher than 60m in the 2')
+            print('Jump higher than 80m in the 2')
             e += 1
             continue          
 
@@ -372,6 +383,9 @@ def readDataSoundings(folder, name, months, datai, dataf):
         i += 1     
 
   print("{0} soundings discarded due to being empty or not having enough data, from a total of {1}".format(e, i))
+
+  df_wind['Dates'] = df_wind['Dates'].astype('datetime64[s]')
+  df_tmp['Dates'] = df_tmp['Dates'].astype('datetime64[s]')
 
   return df_wind, df_tmp
 
@@ -542,12 +556,12 @@ def kmeans_probability(df, df_tmp):
   df_0 = df_a[labels,:]
   df_1 = df_a[~labels,:]
 
-  aa = np.mean(df_0, axis=0)
-  bb = np.mean(df_1, axis=0)  
+#  aa = np.mean(df_0, axis=0)
+#  bb = np.mean(df_1, axis=0)  
 
-  print(aa, bb)
-  print(centroids)
-  sys.exit()
+#  print(aa, bb)
+#  print(centroids)
+#  sys.exit()
 
   df_tmp_0 = df_tmp[labels,:]
   df_tmp_1 = df_tmp[~labels,:]
