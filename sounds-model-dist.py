@@ -96,10 +96,10 @@ def main():
       # Read the model data
       # Return only the data that match the soundings      
       wind_inv_90, wind_noInv_90 = readDataCSV(folder_90, name, smonths, 'wind', df_dates_inv, df_dates_noInv, False, True)
-      temp_inv_90, temp_noInv_90 = readDataCSV(folder_90, name, smonths, 'temp', df_dates_inv, df_dates_noInv, True, False, True)
+      temp_inv_90, temp_noInv_90 = readDataCSV(folder_90, name, smonths, 'temp', df_dates_inv, df_dates_noInv, False, False, True)
 
       wind_inv_80, wind_noInv_80 = readDataCSV(folder_80, name, smonths, 'wind', df_dates_inv, df_dates_noInv, False, True)
-      temp_inv_80, temp_noInv_80 = readDataCSV(folder_80, name, smonths, 'temp', df_dates_inv, df_dates_noInv, True, False, True)
+      temp_inv_80, temp_noInv_80 = readDataCSV(folder_80, name, smonths, 'temp', df_dates_inv, df_dates_noInv, False, False, True)
 
       df_dates_inv_model = pd.DataFrame(wind_inv_90['Dates'])
       df_dates_noInv_model = pd.DataFrame(wind_noInv_90['Dates'])
