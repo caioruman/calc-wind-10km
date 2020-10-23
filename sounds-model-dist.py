@@ -114,8 +114,38 @@ def main():
       wind_noInv_90 = pd.merge(wind_noInv_90, df_dates_noInv_model80, on=['Dates'], how='inner')
       temp_noInv_90 = pd.merge(temp_noInv_90, df_dates_noInv_model80, on=['Dates'], how='inner')
 
-      print(wind_inv_90.shape, wind_inv_80.shape, df_dates_inv.shape)
-      print(wind_noInv_90.shape, wind_noInv_80.shape, df_dates_noInv.shape)
+      df_dates_inv_model = pd.DataFrame(wind_inv_90['Dates'])
+      df_dates_noInv_model = pd.DataFrame(wind_noInv_90['Dates'])
+
+      # Now making the soundings the same size as the model data (check to see why I had to do this)
+
+      df_wind_inv = pd.merge(df_wind_inv, df_dates_inv_model, on=['Dates'], how='inner')
+      df_wind_noInv = pd.merge(df_wind_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
+
+      df_tmp_inv = pd.merge(df_tmp_inv, df_dates_inv_model, on=['Dates'], how='inner')
+      df_tmp_noInv = pd.merge(df_tmp_noInv, df_dates_noInv_model, on=['Dates'], how='inner')
+
+      print(wind_inv_90.shape, wind_inv_80.shape, df_wind_inv.shape)
+      print(wind_noInv_90.shape, wind_noInv_80.shape, df_wind_noInv.shape)
+      #sys.exit()
+
+
+      # Sorting the dataframes
+      wind_inv_90 = wind_inv_90.sort_values(by=['Dates'])
+      wind_noInv_90 = wind_noInv_90.sort_values(by=['Dates'])
+      temp_inv_90 = temp_inv_90.sort_values(by=['Dates'])
+      temp_noInv_90 = temp_noInv_90.sort_values(by=['Dates'])
+
+      wind_inv_90 = wind_inv_90.sort_values(by=['Dates'])
+      wind_noInv_90 = wind_noInv_90.sort_values(by=['Dates'])
+      temp_inv_90 = temp_inv_90.sort_values(by=['Dates'])
+      temp_noInv_90 = temp_noInv_90.sort_values(by=['Dates'])
+ 
+      df_wind_inv = df_wind_inv.sort_values(by=['Dates'])
+      df_wind_noInv = df_wind_noInv.sort_values(by=['Dates'])
+      df_tmp_inv = df_tmp_inv.sort_values(by=['Dates'])
+      df_tmp_noInv = df_tmp_noInv.sort_values(by=['Dates'])
+
       sys.exit()
       #df_noInv = pd.merge(df_full, df_dates_noInv, on=['Dates'], how='inner')
 
