@@ -124,19 +124,25 @@ def main():
 
       levels = [300,275,250,225,200,175,150,125,100,75,50,25,10]
       levels = [500, 450, 400, 350, 325, 300, 280, 260, 240, 220, 189, 162, 139, 119, 102, 88, 76, 66, 57, 49, 42, 36, 31, 26, 22, 18, 14, 10]
-
+      levels_soundings = levels
       # Change the create_lists to sort the profile in another way.
       # 1st possibility: compare the wind between the surface and at higher levels. High wind = Shear driven or WSBL
       cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv, centroids_inv, hist_NoInv, hist_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
       
+      cent_soundings_wind = cent      
+
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True)
       
       cent, histo, perc, inv, numb = create_lists_preplot(profileT_NoInv, profileT_inv, histT_NoInv, histT_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
+
+      cent_soundings_temp = cent
 
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb)
 
       # Plotting deltaT
       cent, histo, perc, inv, numb = create_lists_preplot(deltaT_NoInv, deltaT_inv, hist_deltaT_NoInv, hist_deltaT_inv, perc_NoInv, perc_inv, numb_NoInv, numb_inv, centroids_NoInv, centroids_inv)
+
+      cent_soundings_deltaT = cent
 
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, True)
       
@@ -152,20 +158,34 @@ def main():
       #print(levels)
       cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv90, centroids_inv90, hist_NoInv90, hist_inv90, perc_NoInv90, perc_inv90, numb_NoInv90, numb_inv90, centroids_NoInv90, centroids_inv90)
       
+      cent_model90_wind = cent
+
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True, False, 'model_90')
       
       cent, histo, perc, inv, numb = create_lists_preplot(profileT_NoInv90, profileT_inv90, histT_NoInv90, histT_inv90, perc_NoInv90, perc_inv90, numb_NoInv90, numb_inv90, centroids_NoInv90, centroids_inv90)
 
+      cent_model90_temp = cent
+
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, False, 'model_90')
+
+      cent, histo, perc, inv, numb = create_lists_preplot(deltaT_NoInv90, deltaT_inv90, hist_deltaT_NoInv90, hist_deltaT_inv90, perc_NoInv90, perc_inv90, numb_NoInv90, numb_inv90, centroids_NoInv90, centroids_inv90)
+      cent_model90_deltaT = cent
 
       levels = [int(x) for x in wind_inv_80.columns.values]
       cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv80, centroids_inv80, hist_NoInv80, hist_inv80, perc_NoInv80, perc_inv80, numb_NoInv80, numb_inv80, centroids_NoInv80, centroids_inv80)
       
+      cent_model80_wind = cent
+
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True, False, 'model_80')
       
       cent, histo, perc, inv, numb = create_lists_preplot(profileT_NoInv80, profileT_inv80, histT_NoInv80, histT_inv80, perc_NoInv80, perc_inv80, numb_NoInv80, numb_inv80, centroids_NoInv80, centroids_inv80)
 
+      cent_model80_temp = cent
+
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, False, 'model_80')
+
+      cent, histo, perc, inv, numb = create_lists_preplot(deltaT_NoInv80, deltaT_inv80, hist_deltaT_NoInv80, hist_deltaT_inv80, perc_NoInv80, perc_inv80, numb_NoInv80, numb_inv80, centroids_NoInv80, centroids_inv80)
+      cent_model80_deltaT = cent
 
       # apply the labels from the soundings to the model data    
       # 3) apply the labels on the model data      
@@ -179,6 +199,7 @@ def main():
 
       # plotting one at a time
       levels = [int(x) for x in wind_inv_90.columns.values]
+      levels_model90 = levels
       #print(levels)
       cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv90, centroids_inv90, hist_NoInv90, hist_inv90, perc_NoInv90, perc_inv90, numb_NoInv90, numb_inv90, centroids_NoInv90, centroids_inv90)
       
@@ -189,6 +210,8 @@ def main():
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, False, False, 'model_90_soundings')
 
       levels = [int(x) for x in wind_inv_80.columns.values]
+      levels_model80 = levels
+
       cent, histo, perc, inv, numb = create_lists_preplot(centroids_NoInv80, centroids_inv80, hist_NoInv80, hist_inv80, perc_NoInv80, perc_inv80, numb_NoInv80, numb_inv80, centroids_NoInv80, centroids_inv80)
       
       plot_wind_seasonal(levels, cent, histo, perc, inv, datai, dataf, name, sname, numb, True, False, 'model_80_soundings')
@@ -199,7 +222,11 @@ def main():
 
       # plotting all at once
       
+      plot_comparison(cent_soundings_wind, levels_soundings, cent_model90_wind, levels_model90, cent_model80_wind, levels_model80, name, sname, True, False, 'all_wind')      
 
+      plot_comparison(cent_soundings_temp, levels_soundings, cent_model90_temp, levels_model90, cent_model80_temp, levels_model80, name, sname, False, False, 'all_temp')
+
+      plot_comparison(cent_soundings_deltaT, levels_soundings, cent_model90_deltaT, levels_model90, cent_model80_deltaT, levels_model80, name, sname, False, True, 'all_deltaT')      
       
       # 
 
@@ -691,6 +718,65 @@ def plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, 
   
 
   return None       
+
+def plot_comparison(cent_soundings, levels_soundings, cent_model90, levels_model90, cent_model80, levels_model80, name, period, wind=False, deltaT=False, cname=''):
+#plot_wind_seasonal(levels, centroids, histo, perc, shf, datai, dataf, name, period, numb, wind=False, deltaT=False, cname=''):
+
+  y = levels
+  #x = np.arange(0,40,1)  
+  if wind:    
+    vmin=0
+    vmax=40
+    var = 'wind'
+    lvl = np.arange(0,22,3)
+  elif deltaT:    
+    vmin=-15
+    vmax=15
+    var = 'deltaT'
+    lvl = np.arange(0,22,3)
+    #print(np.max(histo[0]))
+  else:
+    # for temperature
+    #x = np.arange(223.15,293.15,1)    
+    #print(x.shape)
+    vmin=223
+    vmax=293
+    var = 'temp'  
+    lvl = np.arange(0,22,3) 
+   
+  #v = np.arange(vmin, vmax+1, 2) 
+  fig = plt.figure(figsize=[28,16])
+
+  for k, letter in zip(range(0,4), ['a', 'b', 'c', 'd']):
+    subplt = '22{0}'.format(k+1)
+    plt.subplot(subplt)
+        
+    plt.plot(cent_soundings[k], levels_soundings, color='black', marker='o', lw=4, markersize=10, markeredgecolor='k', label='Soundings')
+    plt.plot(cent_model90[k], levels_model90, color='red', marker='o', lw=4, markersize=10, markeredgecolor='k', label='Model90')
+    plt.plot(cent_model80[k], levels_model80, color='blue', marker='o', lw=4, markersize=10, markeredgecolor='k', label='Model80')    
+    
+    if wind:
+      plt.xlim(0,25)
+      plt.xticks(np.arange(0,25,5), fontsize=20)
+    elif deltaT:
+      plt.xlim(-15,10)
+      plt.xticks(np.arange(-10,11,2), fontsize=20)
+    else:
+      plt.xticks(np.arange(225,291,5), fontsize=20)
+    
+    plt.ylim(0,280)
+    
+    if k == 0:
+      plt.legend()
+
+    plt.yticks(np.arange(0,280,10), fontsize=20)    
+    #plt.title('({0}) {1:2.2f} % {2} | #: {3}'.format(letter, perc[k], shf[k], numb[k]), fontsize='20')
+  plt.tight_layout()
+  plt.savefig('Images/{0}_{1}{2}_{3}_{4}_{5}.png'.format(name, datai, dataf, period, var, cname), pad_inches=0.0, bbox_inches='tight')
+  plt.close()
+  
+
+  return None    
 
 if __name__ == "__main__":
   main()
